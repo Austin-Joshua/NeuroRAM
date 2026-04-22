@@ -30,7 +30,9 @@ class AppConfig:
     db_path: str = str((DB_DIR / DB_FILENAME).resolve())
     model_dir: str = str(MODELS_DIR.resolve())
     rf_model_path: str = str((MODELS_DIR / "rf_model.joblib").resolve())
-    scaler_path: str = str((MODELS_DIR / "scaler.joblib").resolve())
+    rf_scaler_path: str = str((MODELS_DIR / "rf_scaler.joblib").resolve())
+    lstm_scaler_path: str = str((MODELS_DIR / "lstm_scaler.joblib").resolve())
+    scaler_path: str = str((MODELS_DIR / "rf_scaler.joblib").resolve())
     lstm_model_path: str = str((MODELS_DIR / "lstm_model.keras").resolve())
     lookback_window: int = DEFAULT_LOOKBACK_WINDOW
     collection_interval_sec: int = DEFAULT_COLLECTION_INTERVAL_SEC

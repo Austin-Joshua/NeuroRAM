@@ -11,7 +11,9 @@ from neuroram.config.config import CONFIG
 
 def build_latest_feature_row(system_df: pd.DataFrame) -> pd.DataFrame:
     df = system_df.copy()
-    df["timestamp"] = pd.to_datetime(df["timestamp"])
+    parsed_ts = pd.to_datetime(df["timestamp"], utc=True, errors="coerce")
+    df = df.loc[parsed_ts.notna()].copy()
+    df["timestamp"] = parsed_ts[parsed_ts.notna()].dt.tz_convert(None)
     df = df.sort_values("timestamp")
     if len(df) < 3:
         raise ValueError("Need at least 3 rows for feature engineering.")

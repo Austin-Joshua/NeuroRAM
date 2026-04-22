@@ -31,8 +31,15 @@ class MLEngine:
     @staticmethod
     def prepare_features(system_df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Series]:
         df = system_df.copy()
-        df["timestamp"] = pd.to_datetime(df["timestamp"])
+        # Handle mixed timestamp formats robustly (with/without timezone offsets).
+        parsed_ts = pd.to_datetime(df["timestamp"], utc=True, errors="coerce")
+        df = df.loc[parsed_ts.notna()].copy()
+        df["timestamp"] = parsed_ts[parsed_ts.notna()].dt.tz_convert(None)
         df = df.sort_values("timestamp")
+        numeric_cols = ["ram_percent", "cpu_percent", "swap_percent", "available_mb"]
+        for col in numeric_cols:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+        df = df.dropna(subset=numeric_cols).reset_index(drop=True)
         df["minute"] = df["timestamp"].dt.minute
         df["hour"] = df["timestamp"].dt.hour
         df["ram_lag_1"] = df["ram_percent"].shift(1)
@@ -61,7 +68,7 @@ class MLEngine:
         pred = model.predict(X_test)
 
         joblib.dump(model, CONFIG.rf_model_path)
-        joblib.dump(scaler, CONFIG.scaler_path)
+        joblib.dump(scaler, CONFIG.rf_scaler_path)
 
         return {
             "model": "RandomForestRegressor",
@@ -105,7 +112,7 @@ class MLEngine:
         pred = model.predict(X_test, verbose=0).flatten()
 
         model.save(CONFIG.lstm_model_path)
-        joblib.dump(scaler, CONFIG.scaler_path)
+        joblib.dump(scaler, CONFIG.lstm_scaler_path)
 
         return {
             "model": "LSTM",
@@ -119,7 +126,7 @@ class MLEngine:
     @staticmethod
     def load_rf_model():
         model = joblib.load(CONFIG.rf_model_path)
-        scaler = joblib.load(CONFIG.scaler_path)
+        scaler = joblib.load(CONFIG.rf_scaler_path)
         return model, scaler
 
     @staticmethod
@@ -127,5 +134,5 @@ class MLEngine:
         if not TENSORFLOW_AVAILABLE:
             raise RuntimeError("TensorFlow is not installed. LSTM loading unavailable.")
         model = load_model(CONFIG.lstm_model_path)
-        scaler = joblib.load(CONFIG.scaler_path)
+        scaler = joblib.load(CONFIG.lstm_scaler_path)
         return model, scaler
