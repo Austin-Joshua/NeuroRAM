@@ -1,7 +1,10 @@
 __pycache__/
 *.py[cod]
 *.db
+.env
 .vscode/
 models/
 .venv/
 venv/
+frontend/dist/
+frontend/node_modules/

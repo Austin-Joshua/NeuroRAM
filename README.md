@@ -1,5 +1,26 @@
 # NeuroRAM
 
+## For evaluators: GitHub visibility and access
+
+If the repository asks visitors to sign in before browsing code, it is almost certainly set to **private** or restricted.
+
+**Make the project fully public (required for most coursework markers):**
+
+1. Open the repo on GitHub → **Settings** → **General**.
+2. Scroll to **Danger Zone** → **Change repository visibility** → select **Public** and confirm.
+3. Still under **Settings** → **General**, confirm **Default branch** is **`main`** (rename if needed).
+4. On the **Code** tab, confirm you see `README.md`, folders (`frontend/`, `backend/`, `db/`, `docs/`, …), and the rendered README without logging in (use a private/incognito window to verify).
+
+**Automation (optional):** install [GitHub CLI](https://cli.github.com/), run `gh auth login`, then:
+
+```bash
+gh repo edit Austin-Joshua/NeuroRAM --visibility public
+```
+
+This environment cannot change GitHub account settings without your authentication.
+
+---
+
 NeuroRAM is a production-grade memory and device intelligence platform built with React, FastAPI, SQLite, and modular OS/DBMS/MLT/DAA layers.
 
 It continuously collects memory and device telemetry, persists history, runs ML forecasting, performs DAA risk analysis, and serves a structured API for a premium SaaS dashboard.
@@ -90,8 +111,9 @@ Capture the running UI and save under `docs/screenshots/` (see `docs/screenshots
 
 ## Documentation index
 
+- `STRUCTURE_GUIDE.md` (repository root) and `docs/STRUCTURE_GUIDE.md` — folder roles, modules, data flow
 - `docs/README.md` - documentation table of contents
-- `docs/STRUCTURE_GUIDE.md` - repository and module responsibilities
+- `docs/SAMPLE_DATA.md` - sample JSON, SQLite notes, how to populate data for review
 - `docs/API_DOCS.md` - endpoint contract and payload reference
 - `docs/database_schema.sql` - documented SQL schema
 - `docs/screenshots/README.md` - screenshot naming and demo guidance

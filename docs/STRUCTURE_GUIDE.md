@@ -4,7 +4,8 @@ This guide describes where code lives, what each module owns, and how telemetry 
 
 ## Top-level folders
 
-- `frontend/` — React user interface for memory and device intelligence (`src/pages`, `src/components`, `src/services`, `src/styles`)
+- `frontend/` — primary **React + Vite** SaaS dashboard (`src/pages`, `src/components`, `src/services`, `src/styles`) — this is the evaluator-facing UI
+- `neuroram/frontend/` — optional **Streamlit** UI (`app.py`, `dashboard.py`); run with `streamlit run neuroram/frontend/app.py` or `streamlit run app.py` from repo root — separate from the React app, not a duplicate folder by mistake
 - `backend/` — FastAPI-facing layer: `OS`, `DBMS`, `MLT`, `DAA`, `api`, and `services` (imports used by the API server)
 - `neuroram/backend/` — canonical implementation modules (lowercase `os`, `dbms`, `mlt`, `daa` trees mirror domain logic)
 - `db/` — SQLite file (`neuroram.db` by default), exports, migrations, and seed fixtures (path configured via `neuroram/config/settings.py`)
@@ -68,3 +69,4 @@ OS -> DBMS -> MLT -> DAA -> API -> UI
 - For architecture: start at `README.md`, then `docs/API_DOCS.md`, then `backend/api/api_server.py`.
 - For data persistence: read `neuroram/backend/dbms/queries.py` and `database.py`.
 - For algorithm behavior: read `neuroram/backend/mlt/` and `neuroram/backend/daa/`.
+- For sample payload reference: `docs/SAMPLE_DATA.md` and `db/seed_data/dashboard_sample.json`.
