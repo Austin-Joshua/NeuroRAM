@@ -1,5 +1,23 @@
 # NeuroRAM
 
+**NeuroRAM** is a **memory monitoring system** with device intelligence: live RAM and swap telemetry, SQLite history, ML forecasting (RandomForest), and DAA risk analysis—served by **FastAPI** and a **React** dashboard.
+
+## GitHub “About” metadata (improves search & evaluation)
+
+The repository is **public** with default branch **`main`**. GitHub’s **description** and **topics** are not stored in git; set them once on the repo homepage (gear icon **About** → **Edit repository details**) or with the CLI after `gh auth login`:
+
+**Suggested short description (copy-paste):**
+
+> NeuroRAM — memory monitoring system with React + FastAPI: RAM/swap telemetry, device storage insights, ML prediction, and DAA risk scoring (SQLite).
+
+**Suggested topics (add each tag):**  
+`react` · `fastapi` · `typescript` · `sqlite` · `machine-learning` · `system-monitoring` · `memory-management` · `telemetry` · `neuroram`
+
+```bash
+gh repo edit Austin-Joshua/NeuroRAM --description "NeuroRAM: memory monitoring system — React, FastAPI, SQLite, ML, DAA."
+gh repo edit Austin-Joshua/NeuroRAM --add-topic react --add-topic fastapi --add-topic machine-learning --add-topic system-monitoring --add-topic sqlite --add-topic typescript
+```
+
 ## For evaluators: GitHub visibility and access
 
 **Status check (no login required):** the GitHub API reports this repository as **public** (`"private": false`) with default branch **`main`**. Example check (any machine):
