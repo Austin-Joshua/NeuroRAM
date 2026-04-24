@@ -7,7 +7,7 @@ from typing import List
 
 import pandas as pd
 
-from backend.DAA.risk_analyzer import RiskLevel
+from neuroram.backend.daa.risk_analyzer import RiskLevel
 
 
 @dataclass

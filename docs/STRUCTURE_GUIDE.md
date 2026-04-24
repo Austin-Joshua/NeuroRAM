@@ -4,10 +4,9 @@ This guide describes where code lives, what each module owns, and how telemetry 
 
 ## Top-level folders
 
-- `frontend/` — primary **React + Vite** SaaS dashboard (`src/pages`, `src/components`, `src/services`, `src/styles`) — this is the evaluator-facing UI
-- `neuroram/frontend/` — optional **Streamlit** UI (`app.py`, `dashboard.py`); run with `streamlit run neuroram/frontend/app.py` or `streamlit run app.py` from repo root — separate from the React app, not a duplicate folder by mistake
-- `backend/` — FastAPI-facing layer: `OS`, `DBMS`, `MLT`, `DAA`, `api`, and `services` (imports used by the API server)
-- `neuroram/backend/` — canonical implementation modules (lowercase `os`, `dbms`, `mlt`, `daa` trees mirror domain logic)
+- `neuroram/frontend/` — primary **React + Vite** SaaS dashboard (`src/pages`, `src/components`, `src/services`, `src/styles`)
+- `neuroram/streamlit/` — optional **Streamlit** UI (`app.py`, `dashboard.py`); run with `streamlit run neuroram/streamlit/app.py` or `streamlit run app.py`
+- `neuroram/backend/` — FastAPI-facing canonical backend (`api`, `services`, `os`, `dbms`, `mlt`, `daa`)
 - `db/` — SQLite file (`neuroram.db` by default), exports, migrations, and seed fixtures (path configured via `neuroram/config/settings.py`)
 - `neuroram/config/` — runtime settings and environment parsing
 - `config/` — additional project-level configuration helpers when present
@@ -41,14 +40,10 @@ This guide describes where code lives, what each module owns, and how telemetry 
 - `stability_index.py`: stability score calculation
 - `optimizer.py`: process prioritization recommendations
 
-## Wrapper layer (`backend/`)
-
-`backend/OS`, `backend/DBMS`, `backend/MLT`, and `backend/DAA` expose compatibility-safe imports and delegate to the canonical `neuroram/backend/*` modules. New core behavior should land under `neuroram/backend/*` first.
-
 ## API surface
 
 - `api_server.py` (repository root) — thin entrypoint for `uvicorn api_server:app`
-- `backend/api/api_server.py` — FastAPI application and `/api/dashboard` composition
+- `neuroram/backend/api/api_server.py` — FastAPI application and `/api/dashboard` composition
 - Primary endpoint: `GET /api/dashboard` (structured `metrics`, `devices`, `trends`, `analysis`, `recommendations`; analysis uses `graph_insights.*.next` as the “what it means” line in the UI)
 
 ## Data flow
@@ -66,7 +61,7 @@ OS -> DBMS -> MLT -> DAA -> API -> UI
 
 ## Reviewer guidance
 
-- For architecture: start at `README.md`, then `docs/API_DOCS.md`, then `backend/api/api_server.py`.
+- For architecture: start at `README.md`, then `docs/API_DOCS.md`, then `neuroram/backend/api/api_server.py`.
 - For data persistence: read `neuroram/backend/dbms/queries.py` and `database.py`.
 - For algorithm behavior: read `neuroram/backend/mlt/` and `neuroram/backend/daa/`.
 - For sample payload reference: `docs/SAMPLE_DATA.md` and `db/seed_data/dashboard_sample.json`.

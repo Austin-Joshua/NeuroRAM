@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from backend.MLT.ml_engine import FEATURE_COLUMNS, MLEngine, TENSORFLOW_AVAILABLE
+from neuroram.backend.mlt.ml_engine import FEATURE_COLUMNS, MLEngine, TENSORFLOW_AVAILABLE
 from neuroram.config.config import CONFIG
 
 

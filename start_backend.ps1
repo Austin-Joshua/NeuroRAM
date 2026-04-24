@@ -6,4 +6,5 @@ if (!(Test-Path ".venv")) {
 
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+$env:PYTHONPYCACHEPREFIX = ".cache/pycache"
 uvicorn api_server:app --reload --port 8000

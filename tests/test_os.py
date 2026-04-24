@@ -1,5 +1,5 @@
-from backend.OS.collector import collect_system_metrics
-from backend.OS.device_monitor import collect_external_devices, detect_device_events
+from neuroram.backend.os.collector import collect_system_metrics
+from neuroram.backend.os.device_monitor import collect_external_devices, detect_device_events
 
 
 def test_collect_system_metrics_has_required_keys():

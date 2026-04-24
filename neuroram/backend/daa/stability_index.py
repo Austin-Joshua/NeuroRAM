@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from backend.DAA.risk_analyzer import RiskLevel
+from neuroram.backend.daa.risk_analyzer import RiskLevel
 
 
 def compute_stability_index(ram_percent: float, swap_percent: float, risk_level: RiskLevel) -> float:

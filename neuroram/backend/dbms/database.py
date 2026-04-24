@@ -8,8 +8,8 @@ from typing import Dict, Iterable, Sequence
 
 import pandas as pd
 
-from backend.DBMS.models import PERFORMANCE_INDEXES, TIMESTAMP_INDEXES
-from backend.DBMS.queries import CREATE_SCHEMA_SQL
+from neuroram.backend.dbms.models import PERFORMANCE_INDEXES, TIMESTAMP_INDEXES
+from neuroram.backend.dbms.queries import CREATE_SCHEMA_SQL
 from neuroram.config.config import CONFIG
 
 

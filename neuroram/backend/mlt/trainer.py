@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import time
 
-from backend.DBMS.database import DatabaseManager
-from backend.MLT.ml_engine import MLEngine, TENSORFLOW_AVAILABLE
-from backend.OS.collector import collect_process_metrics, collect_system_metrics
+from neuroram.backend.dbms.database import DatabaseManager
+from neuroram.backend.mlt.ml_engine import MLEngine, TENSORFLOW_AVAILABLE
+from neuroram.backend.os.collector import collect_process_metrics, collect_system_metrics
 from neuroram.config.config import CONFIG
 
 

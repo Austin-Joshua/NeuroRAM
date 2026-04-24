@@ -6,5 +6,12 @@ __pycache__/
 models/
 .venv/
 venv/
-frontend/dist/
-frontend/node_modules/
+neuroram/frontend/dist/
+neuroram/frontend/node_modules/
+.pytest_cache/
+.cache/
+*.log
+*.tmp
+.tmp_*
+db/*.db-shm
+db/*.db-wal

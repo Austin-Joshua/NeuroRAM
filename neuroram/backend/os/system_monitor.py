@@ -6,9 +6,9 @@ from typing import Tuple
 
 import pandas as pd
 
-from backend.DBMS.database import DatabaseManager
-from backend.OS.collector import collect_process_metrics, collect_system_metrics
-from backend.OS.device_monitor import DeviceSnapshot, collect_external_devices, detect_device_events
+from neuroram.backend.dbms.database import DatabaseManager
+from neuroram.backend.os.collector import collect_process_metrics, collect_system_metrics
+from neuroram.backend.os.device_monitor import DeviceSnapshot, collect_external_devices, detect_device_events
 
 
 def collect_and_store(

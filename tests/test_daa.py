@@ -1,4 +1,4 @@
-from backend.DAA.risk_analyzer import classify_risk
+from neuroram.backend.daa.risk_analyzer import classify_risk
 
 
 def test_classify_risk_normal():

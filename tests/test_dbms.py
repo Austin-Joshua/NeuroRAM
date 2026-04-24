@@ -1,4 +1,4 @@
-from backend.DBMS.database import DatabaseManager
+from neuroram.backend.dbms.database import DatabaseManager
 
 
 def test_db_initializes():

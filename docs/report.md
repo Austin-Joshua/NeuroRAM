@@ -39,7 +39,7 @@ NeuroRAM follows a modular pipeline:
 3. **ML Layer** (`neuroram/backend/mlt/ml_engine.py`, `neuroram/backend/mlt/predictor.py`)
 4. **Analytics Layer** (`neuroram/backend/daa/risk_analyzer.py`, `neuroram/backend/daa/stability_index.py`)
 5. **Optimization Layer** (`neuroram/backend/daa/optimizer.py`)
-6. **Presentation Layer** (`neuroram/frontend/dashboard.py`, entry via root `app.py` or `neuroram/frontend/app.py`)
+6. **Presentation Layer** (`neuroram/streamlit/dashboard.py`, entry via root `app.py` or `neuroram/streamlit/app.py`)
 
 Each layer is loosely coupled, enabling independent testing and incremental upgrades.
 
@@ -63,7 +63,7 @@ Each layer is loosely coupled, enabling independent testing and incremental upgr
 - **`neuroram/backend/daa/risk_analyzer.py`**: Leak heuristic and risk classification.
 - **`neuroram/backend/daa/stability_index.py`**: Normalized system health indicator.
 - **`neuroram/backend/daa/optimizer.py`**: Process priority score and greedy recommendations.
-- **`neuroram/frontend/dashboard.py`**: Streamlit dashboard UI.
+- **`neuroram/streamlit/dashboard.py`**: Streamlit dashboard UI.
 - **`neuroram/config/config.py`**: Centralized configuration and thresholds.
 
 ## Implementation

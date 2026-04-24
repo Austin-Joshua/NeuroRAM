@@ -1,10 +1,10 @@
-from backend.OS.collector import collect_process_metrics, collect_system_metrics
-from backend.DBMS.database import DatabaseManager
-from backend.MLT.ml_engine import MLEngine
-from backend.MLT.predictor import predict_next_ram
-from backend.DAA.risk_analyzer import classify_risk, detect_memory_leak
-from backend.DAA.optimizer import greedy_optimization_strategy
-from backend.DAA.stability_index import compute_stability_index
+from neuroram.backend.os.collector import collect_process_metrics, collect_system_metrics
+from neuroram.backend.dbms.database import DatabaseManager
+from neuroram.backend.mlt.ml_engine import MLEngine
+from neuroram.backend.mlt.predictor import predict_next_ram
+from neuroram.backend.daa.risk_analyzer import classify_risk, detect_memory_leak
+from neuroram.backend.daa.optimizer import greedy_optimization_strategy
+from neuroram.backend.daa.stability_index import compute_stability_index
 import pandas as pd
 
 

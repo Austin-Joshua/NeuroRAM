@@ -45,7 +45,7 @@
 - `neuroram/backend/dbms/database.py`
 - `neuroram/backend/mlt/ml_engine.py`, `predictor.py`
 - `neuroram/backend/daa/risk_analyzer.py`, `stability_index.py`, `optimizer.py`
-- `neuroram/frontend/dashboard.py` (UI) + root `app.py` / `neuroram/frontend/app.py` (entry)
+- `neuroram/streamlit/dashboard.py` (UI) + root `app.py` / `neuroram/streamlit/app.py` (entry)
 - `neuroram/config/config.py`
 
 ## 8) Tech Stack

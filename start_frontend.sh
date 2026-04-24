@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-cd frontend
+cd neuroram/frontend
 npm install
 npm run dev

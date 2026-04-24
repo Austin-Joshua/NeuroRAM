@@ -59,6 +59,14 @@ OS → DB → ML → DAA → API → UI
 
 ## Quick start
 
+### Quickstart matrix
+
+| Component | Windows (PowerShell) | Linux/macOS (bash) |
+|---|---|---|
+| Backend API | `python -m venv .venv`<br>`.venv\Scripts\Activate.ps1`<br>`pip install -r requirements.txt`<br>`uvicorn api_server:app --reload --port 8000` | `python -m venv .venv`<br>`source .venv/bin/activate`<br>`pip install -r requirements.txt`<br>`uvicorn api_server:app --reload --port 8000` |
+| Frontend (React) | `cd neuroram/frontend`<br>`npm install`<br>`npm run dev` | `cd neuroram/frontend`<br>`npm install`<br>`npm run dev` |
+| Streamlit (optional) | `.venv\Scripts\Activate.ps1`<br>`streamlit run app.py` | `source .venv/bin/activate`<br>`streamlit run app.py` |
+
 ### Backend
 
 The SQLite file and seed data live under `db/` at the repository root (see `neuroram/config/settings.py`). Run the API from the repository root so imports resolve.
@@ -76,7 +84,7 @@ uvicorn api_server:app --reload --port 8000
 ### Frontend
 
 ```bash
-cd frontend
+cd neuroram/frontend
 npm install
 npm run dev
 ```
@@ -95,12 +103,9 @@ The response is JSON with top-level keys: `ready`, `timestamp_utc`, `metrics`, `
 
 ## Project map
 
-- `frontend/` - React SaaS dashboard
-- `backend/` - stable production interface layer
-- `neuroram/backend/os/` - telemetry and device collection
-- `neuroram/backend/dbms/` - schema, persistence, and query access
-- `neuroram/backend/mlt/` - model training and prediction
-- `neuroram/backend/daa/` - risk, stability, and recommendations
+- `neuroram/frontend/` - React SaaS dashboard (UI, charts, routing, styles)
+- `neuroram/backend/` - backend modules (`api`, `services`, `os`, `dbms`, `mlt`, `daa`)
+- `neuroram/streamlit/` - optional Streamlit UI
 - `db/` - SQLite database file, exports, migrations, and seed data
 - `docs/` - architecture, API, schema, and reporting docs
 - `tests/` - backend verification suite
@@ -131,7 +136,7 @@ Capture the running UI and save under `docs/screenshots/` (see `docs/screenshots
 - `docs/API_DOCS.md` - endpoint contract and payload reference
 - `docs/database_schema.sql` - documented SQL schema
 - `docs/screenshots/README.md` - screenshot naming and demo guidance
-- `frontend/README.md` - frontend development guide
+- `neuroram/frontend/README.md` - frontend development guide
 
 ## Environment
 
@@ -141,6 +146,9 @@ Copy `.env.example` to `.env` and adjust values for polling interval, thresholds
 
 - `start_backend.sh` / `start_backend.ps1`
 - `start_frontend.sh` / `start_frontend.ps1`
+- `scripts/clean_repo.sh` / `scripts/clean_repo.ps1` to clear caches and transient build/runtime artifacts
+
+Backend start scripts route Python bytecode cache into `.cache/pycache` to keep the repository root clean.
 
 ## CI
 
