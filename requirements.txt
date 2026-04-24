@@ -5,3 +5,9 @@ scikit-learn
 joblib
 streamlit
 plotly
+wmi
+pywin32
+pyudev
+fastapi
+uvicorn
+pytest

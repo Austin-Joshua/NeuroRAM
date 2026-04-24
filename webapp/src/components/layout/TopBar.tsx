@@ -1,0 +1,50 @@
+import { Activity, BrainCircuit, Menu, MoonStar, Sun } from "lucide-react";
+import type { DashboardPayload } from "../../services/api";
+
+type Props = {
+  payload: DashboardPayload | null;
+  theme: "dark" | "light";
+  onHomeClick: () => void;
+  onMenuToggle: () => void;
+  onThemeToggle: () => void;
+};
+
+export function TopBar({ payload, theme, onHomeClick, onMenuToggle, onThemeToggle }: Props) {
+  const riskClass = payload?.metrics.risk_level.toLowerCase() ?? "normal";
+  const showAlertDot = ["warning", "critical", "emergency"].includes(riskClass);
+  const isLive = Boolean(payload?.metrics.pipeline?.running);
+
+  return (
+    <header className="top-shell">
+      <div className="brand-block">
+        <button className="menu-btn" onClick={onMenuToggle} aria-label="Toggle sidebar navigation">
+          <Menu size={16} />
+        </button>
+        <button className="brand-home" onClick={onHomeClick} aria-label="Go to dashboard">
+          <div className="logo-dot">
+            <BrainCircuit size={18} />
+          </div>
+          <div>
+            <h1>NeuroRAM</h1>
+            <p>Memory Intelligence System</p>
+          </div>
+        </button>
+      </div>
+      <div className="top-actions">
+        <span className={`pill ${riskClass}`}>
+          {showAlertDot ? <span className="status-dot alert" /> : null}
+          {payload?.ready ? payload.metrics.risk_level : "CONNECTING"}
+        </span>
+        <span className={`pill live-pill ${isLive ? "running" : "idle"}`}>
+          <span className="status-dot live" />
+          <span className="status-dot live secondary" />
+          <Activity size={13} />
+          {payload?.metrics.pipeline?.running ? `Live ${payload.metrics.pipeline.cycles}` : "Idle"}
+        </span>
+        <button className="theme-icon-btn" onClick={onThemeToggle} aria-label="Toggle theme">
+          {theme === "dark" ? <Sun size={16} /> : <MoonStar size={16} />}
+        </button>
+      </div>
+    </header>
+  );
+}

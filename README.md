@@ -20,7 +20,8 @@ NeuroRAM is an AI-driven memory observability and prediction platform that combi
 NeuroRAM/
 ├── neuroram/
 │   ├── frontend/
-│   │   ├── app.py
+│   │   ├── app.py            # Streamlit entry (imports dashboard)
+│   │   ├── dashboard.py      # full dashboard implementation
 │   │   ├── ui_components.py
 │   │   ├── styles.css
 │   │   ├── components/
@@ -59,8 +60,7 @@ NeuroRAM/
 │   ├── test_dbms.py
 │   ├── test_mlt.py
 │   └── test_daa.py
-├── app.py                      # compatibility entrypoint
-├── config.py                   # compatibility re-export
+├── app.py                      # thin shim → neuroram.frontend.dashboard
 ├── requirements.txt
 └── docs/
     ├── report.md
@@ -78,27 +78,36 @@ NeuroRAM/
    - `pip install -r requirements.txt`
 3. Optional LSTM support:
    - `pip install tensorflow`
+4. Optional runtime overrides:
+   - Copy `.env.example` to `.env` and adjust thresholds, intervals, DB filename, and CORS origins.
 
 ## Run
 
 - Start dashboard:
-  - `streamlit run app.py` (compatibility entrypoint)
+  - `streamlit run app.py` (root shim; same UI as below)
   - or `streamlit run neuroram/frontend/app.py`
+- React makeover frontend (recommended public UI):
+  - API server: `uvicorn api_server:app --reload --port 8000`
+  - React app: `cd webapp && npm install && npm run dev`
+  - Open the Vite URL (usually `http://localhost:5173`)
+- Sample data + train RF/LSTM entry flow:
+  - `python -m neuroram.backend.mlt.trainer`
 
 ## Usage Flow
 
 1. Launch the dashboard.
 2. NeuroRAM collects real-time system and process metrics.
-3. Data is stored in `neuroram.db`.
+3. Data is stored in `neuroram/db/neuroram.db`.
 4. When enough data exists, the model trains and predicts next RAM usage.
 5. Risk level, leak alerts, and optimization recommendations are generated.
 
 ## Database Schema
 
-- `system_metrics`: periodic OS-level samples
+- `memory_logs`: periodic RAM/swap samples
 - `process_metrics`: top memory-consuming process snapshots
-- `predictions`: predicted vs actual RAM percentage
-- `alerts`: risk alerts and stability index history
+- `prediction_logs`: predicted vs actual RAM percentage
+- `analysis_reports`: risk level, causes, dos/donts, stability index
+- `device_logs`: external device snapshots + connect/disconnect events
 
 ## Academic Mapping
 

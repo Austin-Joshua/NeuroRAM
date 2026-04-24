@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 
 from neuroram.config.settings import (
+    DEFAULT_CORS_ORIGINS,
     DB_DIR,
     DB_FILENAME,
     DEFAULT_COLLECTION_INTERVAL_SEC,
@@ -42,6 +43,7 @@ class AppConfig:
     critical_threshold: float = DEFAULT_CRITICAL_THRESHOLD
     emergency_threshold: float = DEFAULT_EMERGENCY_THRESHOLD
     leak_growth_threshold: float = DEFAULT_LEAK_GROWTH_THRESHOLD
+    cors_origins_raw: str = DEFAULT_CORS_ORIGINS
 
 
 CONFIG = AppConfig()

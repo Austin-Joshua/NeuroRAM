@@ -1,10 +1,10 @@
-from neuroram.backend.os.collector import collect_process_metrics, collect_system_metrics
-from neuroram.backend.dbms.database import DatabaseManager
-from neuroram.backend.mlt.ml_engine import MLEngine
-from neuroram.backend.mlt.predictor import predict_next_ram
-from neuroram.backend.daa.risk_analyzer import classify_risk, detect_memory_leak
-from neuroram.backend.daa.optimizer import greedy_optimization_strategy
-from neuroram.backend.daa.stability_index import compute_stability_index
+from backend.OS.collector import collect_process_metrics, collect_system_metrics
+from backend.DBMS.database import DatabaseManager
+from backend.MLT.ml_engine import MLEngine
+from backend.MLT.predictor import predict_next_ram
+from backend.DAA.risk_analyzer import classify_risk, detect_memory_leak
+from backend.DAA.optimizer import greedy_optimization_strategy
+from backend.DAA.stability_index import compute_stability_index
 import pandas as pd
 
 
@@ -36,7 +36,6 @@ def main() -> None:
     risk = classify_risk(effective, leak)
     stability = compute_stability_index(
         float(system_row["ram_percent"]),
-        float(system_row["cpu_percent"]),
         float(system_row["swap_percent"]),
         risk.level,
     )
@@ -44,7 +43,7 @@ def main() -> None:
     db.insert_alert(system_row["timestamp"], risk.level.value, " | ".join(risk.reasons), stability)
 
     print("CHECKLIST_OK")
-    print("system_ram", round(system_row["ram_percent"], 2), "cpu", round(system_row["cpu_percent"], 2), "proc_count", len(process_rows))
+    print("system_ram", round(system_row["ram_percent"], 2), "proc_count", len(process_rows))
     print("db_system_rows", len(hist), "db_pred_rows", len(pred_hist))
     print("ml_train", train_status)
     print("ml_pred", "none" if pred is None else round(pred, 2), "ml_err", err)

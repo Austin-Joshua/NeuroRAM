@@ -34,12 +34,12 @@ Research gap: limited unified systems combining OS telemetry, historical DB desi
 
 NeuroRAM follows a modular pipeline:
 
-1. **Collection Layer** (`collector.py`)
-2. **Persistence Layer** (`database.py`)
-3. **ML Layer** (`ml_engine.py`, `predictor.py`)
-4. **Analytics Layer** (`risk_analyzer.py`, `stability_index.py`)
-5. **Optimization Layer** (`optimizer.py`)
-6. **Presentation Layer** (`app.py`)
+1. **Collection Layer** (`neuroram/backend/os/collector.py`)
+2. **Persistence Layer** (`neuroram/backend/dbms/database.py`)
+3. **ML Layer** (`neuroram/backend/mlt/ml_engine.py`, `neuroram/backend/mlt/predictor.py`)
+4. **Analytics Layer** (`neuroram/backend/daa/risk_analyzer.py`, `neuroram/backend/daa/stability_index.py`)
+5. **Optimization Layer** (`neuroram/backend/daa/optimizer.py`)
+6. **Presentation Layer** (`neuroram/frontend/dashboard.py`, entry via root `app.py` or `neuroram/frontend/app.py`)
 
 Each layer is loosely coupled, enabling independent testing and incremental upgrades.
 
@@ -56,15 +56,15 @@ Each layer is loosely coupled, enabling independent testing and incremental upgr
 
 ## Modules
 
-- **`collector.py`**: Gathers RAM, swap, CPU, available memory, and top process usage.
-- **`database.py`**: Auto-creates schema, inserts observations, and provides query APIs.
-- **`ml_engine.py`**: Trains Random Forest; supports optional LSTM using TensorFlow.
-- **`predictor.py`**: Produces real-time next-step RAM prediction from latest engineered features.
-- **`risk_analyzer.py`**: Performs leak heuristic and risk classification.
-- **`stability_index.py`**: Computes normalized system health indicator.
-- **`optimizer.py`**: Computes process priority score and greedy recommendations.
-- **`app.py`**: Integrates all modules into interactive dashboard experience.
-- **`config.py`**: Centralized configuration and thresholds.
+- **`neuroram/backend/os/collector.py`**: Gathers RAM, swap, available memory, and top process usage.
+- **`neuroram/backend/dbms/database.py`**: Auto-creates schema, inserts observations, and provides query APIs.
+- **`neuroram/backend/mlt/ml_engine.py`**: Trains Random Forest; supports optional LSTM using TensorFlow.
+- **`neuroram/backend/mlt/predictor.py`**: Produces next-step RAM prediction from latest engineered features.
+- **`neuroram/backend/daa/risk_analyzer.py`**: Leak heuristic and risk classification.
+- **`neuroram/backend/daa/stability_index.py`**: Normalized system health indicator.
+- **`neuroram/backend/daa/optimizer.py`**: Process priority score and greedy recommendations.
+- **`neuroram/frontend/dashboard.py`**: Streamlit dashboard UI.
+- **`neuroram/config/config.py`**: Centralized configuration and thresholds.
 
 ## Implementation
 

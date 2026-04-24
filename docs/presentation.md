@@ -41,15 +41,12 @@
 
 ## 7) Modules
 
-- `collector.py`
-- `database.py`
-- `ml_engine.py`
-- `predictor.py`
-- `risk_analyzer.py`
-- `stability_index.py`
-- `optimizer.py`
-- `app.py`
-- `config.py`
+- `neuroram/backend/os/collector.py`
+- `neuroram/backend/dbms/database.py`
+- `neuroram/backend/mlt/ml_engine.py`, `predictor.py`
+- `neuroram/backend/daa/risk_analyzer.py`, `stability_index.py`, `optimizer.py`
+- `neuroram/frontend/dashboard.py` (UI) + root `app.py` / `neuroram/frontend/app.py` (entry)
+- `neuroram/config/config.py`
 
 ## 8) Tech Stack
 
