@@ -29,8 +29,12 @@ export function AnalysisPage({ payload }: Props) {
             <p>{payload.analysis.what_why_how?.why ?? payload.analysis.reasons[0] ?? "Memory behavior is currently stable."}</p>
           </article>
           <article>
-            <h3>How Serious</h3>
-            <p>{payload.analysis.what_why_how?.how_serious ?? `Risk level is ${payload.metrics.risk_level} with stability score ${payload.metrics.stability_score.toFixed(1)}.`}</p>
+            <h3>Impact on system</h3>
+            <p>
+              {payload.analysis.what_why_how?.impact ??
+                payload.analysis.what_why_how?.how_serious ??
+                `Risk level is ${payload.metrics.risk_level} with stability score ${payload.metrics.stability_score.toFixed(1)}.`}
+            </p>
           </article>
         </div>
         <div className="analysis-grid">
@@ -39,10 +43,19 @@ export function AnalysisPage({ payload }: Props) {
             <p>{payload.analysis.algorithm ?? "ML (Random Forest) + DAA (Risk Analyzer and Stability Scoring)"}</p>
           </article>
           <article>
-            <h3>Prediction Efficiency</h3>
-            <p>MAE: {payload.analysis.memory_patterns.predicted_vs_actual_mae ?? "N/A"}</p>
-            <p>Bias: {payload.analysis.memory_patterns.predicted_vs_actual_bias ?? "N/A"}</p>
-            <p>Score: {predictionEfficiency == null ? "N/A" : `${predictionEfficiency}%`}</p>
+            <h3>Prediction efficiency</h3>
+            <p>
+              Mean absolute error (MAE) between forecast and observed RAM:{" "}
+              <strong>{payload.analysis.memory_patterns.predicted_vs_actual_mae ?? "N/A"}</strong> percentage points.
+            </p>
+            <p>
+              Signed bias (over vs under forecast):{" "}
+              <strong>{payload.analysis.memory_patterns.predicted_vs_actual_bias ?? "N/A"}</strong>.
+            </p>
+            <p>
+              Composite efficiency score (higher is tighter tracking):{" "}
+              <strong>{predictionEfficiency == null ? "N/A" : `${predictionEfficiency}%`}</strong>.
+            </p>
           </article>
           <article>
             <h3>Memory Depletion Logic</h3>

@@ -75,9 +75,24 @@ function AppShell() {
           onMenuToggle={() => setCollapsed((v) => !v)}
           onThemeToggle={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
         />
-        {loading && !payload ? <section className="panel">Loading dashboard...</section> : null}
-        {error ? <section className="panel error">Failed to fetch data: {error}</section> : null}
-        {payload && !payload.ready ? <section className="panel">{payload.message ?? "No data available yet."}</section> : null}
+        {loading && !payload ? (
+          <section className="panel">
+            <h2 className="panel-loading-title">Loading</h2>
+            <p className="panel-copy">Fetching live memory and device intelligence from the API…</p>
+          </section>
+        ) : null}
+        {error ? (
+          <section className="panel error">
+            <h2 className="panel-loading-title">Connection issue</h2>
+            <p className="panel-copy">Failed to fetch data: {error}</p>
+          </section>
+        ) : null}
+        {payload && !payload.ready ? (
+          <section className="panel">
+            <h2 className="panel-loading-title">Warming up</h2>
+            <p className="panel-copy">{payload.message ?? "No data available yet. The pipeline is collecting the first samples."}</p>
+          </section>
+        ) : null}
         {payload?.ready && (
           <Routes>
             <Route path="/dashboard" element={<DashboardPage payload={payload} showPredicted={showPredicted} showActual={showActual} setShowPredicted={setShowPredicted} setShowActual={setShowActual} />} />

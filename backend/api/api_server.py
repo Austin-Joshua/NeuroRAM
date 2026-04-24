@@ -107,6 +107,7 @@ def _empty_dashboard_payload(now: str, message: str) -> dict[str, Any]:
                 "what": "No memory telemetry has been collected yet.",
                 "why": "The pipeline has not produced enough samples for analysis.",
                 "how_serious": "Low - waiting for initial data collection.",
+                "impact": "Low - waiting for initial data collection.",
             },
             "algorithm": "ML (RandomForest) + DAA (risk classification, stability indexing, greedy optimization)",
             "reasons": [],
@@ -123,7 +124,6 @@ def _empty_dashboard_payload(now: str, message: str) -> dict[str, Any]:
             "inefficient_processes": [],
             "processes": [],
             "logs_preview": [],
-            "prediction_accuracy": {"mae": None, "bias": None},
             "narrative": "Telemetry is starting up. Once samples accumulate, NeuroRAM will explain memory pressure, device effects, and forecast quality in plain language.",
             "graph_insights": {
                 "memory": {
@@ -502,7 +502,7 @@ def _graph_insights(
     connected_devices: int,
     device_events_recent: int,
 ) -> dict[str, dict[str, str]]:
-    """Short storytelling blocks for each chart surface (what / why / next)."""
+    """Short storytelling blocks for each chart (what / why / next). UI maps `next` to 'What it means'."""
     spike = bool(patterns.get("spike_detected"))
     leak = bool(patterns.get("gradual_leak_detected"))
     volatile = bool(patterns.get("abnormal_pattern"))
@@ -595,6 +595,39 @@ def _narrative_analysis(
     return " ".join(bits)
 
 
+def _ineff_by_pid(ineff: list[dict[str, Any]]) -> dict[int, dict[str, Any]]:
+    m: dict[int, dict[str, Any]] = {}
+    for r in ineff:
+        p = r.get("pid")
+        if p is None:
+            continue
+        try:
+            m[int(p)] = r
+        except (TypeError, ValueError):
+            continue
+    return m
+
+
+def _enrich_process_rows(process_slice: pd.DataFrame, ineff_by_pid: dict[int, dict[str, Any]]) -> list[dict[str, Any]]:
+    if process_slice.empty:
+        return []
+    rows = process_slice.to_dict(orient="records")
+    for row in rows:
+        pid = row.get("pid")
+        if pid is None:
+            continue
+        try:
+            pk = int(pid)
+        except (TypeError, ValueError):
+            continue
+        src = ineff_by_pid.get(pk)
+        if src is None:
+            continue
+        if row.get("inefficiency_score") is None and src.get("inefficiency_score") is not None:
+            row["inefficiency_score"] = src.get("inefficiency_score")
+    return rows
+
+
 def _inefficient_processes(process_df: pd.DataFrame) -> list[dict[str, Any]]:
     if process_df.empty:
         return []
@@ -608,6 +641,20 @@ def _inefficient_processes(process_df: pd.DataFrame) -> list[dict[str, Any]]:
     heavy = p[(p["rss_mb"] > 350.0) | (p["memory_percent"] > 4.0)].sort_values("inefficiency_score", ascending=False).head(6)
     out = heavy[["pid", "name", "rss_mb", "memory_percent", "inefficiency_score"]].round({"rss_mb": 2, "memory_percent": 2, "inefficiency_score": 2})
     return out.where(pd.notna(out), None).to_dict(orient="records")
+
+
+def _dedupe_prioritized_actions(recs: list[dict[str, str]], max_items: int = 8) -> list[dict[str, str]]:
+    seen: set[str] = set()
+    out: list[dict[str, str]] = []
+    for r in recs:
+        key = (str(r.get("action") or "")).strip().lower()
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        out.append(r)
+        if len(out) >= max_items:
+            break
+    return out
 
 
 def _structured_recommendations(
@@ -711,6 +758,7 @@ def dashboard() -> dict[str, Any]:
     network_adapters = [r for r in formatted_connected if r.get("device_group") == "network_adapter"]
 
     ineff = _inefficient_processes(process)
+    ineff_by_pid = _ineff_by_pid(ineff)
     algo_recs = greedy_optimization_strategy(process, risk_report.level) if not process.empty else []
     structured_recs = _structured_recommendations(
         risk_level=risk_report.level,
@@ -727,6 +775,7 @@ def dashboard() -> dict[str, Any]:
                 "why": f"Priority score {rec.priority_score}",
             }
         )
+    structured_recs = _dedupe_prioritized_actions(structured_recs, max_items=8)
 
     recent_device_events = 0
     if not device_logs.empty:
@@ -740,6 +789,10 @@ def dashboard() -> dict[str, Any]:
         patterns=patterns,
         reasons=risk_report.reasons,
         connected_devices=len(formatted_connected),
+    )
+    how_serious_line = (
+        f"{risk_report.level.value} operational risk with {patterns.get('severity', 'low')} pattern severity; "
+        f"stability score {round(float(stability), 1)}/100."
     )
     graph_insights = _graph_insights(
         patterns=patterns,
@@ -825,24 +878,21 @@ def dashboard() -> dict[str, Any]:
             "what_why_how": {
                 "what": narrative.split(".")[0] + "." if narrative else "Memory and device posture is being assessed.",
                 "why": (patterns.get("explanations") or [risk_report.reasons[0] if risk_report.reasons else "No single dominant cause identified."])[0],
-                "how_serious": f"{risk_report.level.value} operational risk with {patterns.get('severity', 'low')} pattern severity; stability score {round(float(stability), 1)}/100.",
+                "how_serious": how_serious_line,
+                "impact": how_serious_line,
             },
             "algorithm": "ML (RandomForest) + DAA (risk classification, stability indexing, greedy optimization)",
             "reasons": risk_report.reasons,
             "memory_patterns": patterns,
             "inefficient_processes": ineff,
-            "processes": process.where(pd.notna(process), None).head(25).to_dict(orient="records"),
+            "processes": _enrich_process_rows(process.where(pd.notna(process), None).head(25), ineff_by_pid),
             "logs_preview": analysis_rows.where(pd.notna(analysis_rows), None).head(40).to_dict(orient="records"),
-            "prediction_accuracy": {
-                "mae": patterns.get("predicted_vs_actual_mae"),
-                "bias": patterns.get("predicted_vs_actual_bias"),
-            },
         },
         "recommendations": {
             "category": health_category,
             "dos": risk_report.dos,
             "donts": risk_report.donts,
-            "prioritized_actions": structured_recs[:8],
+            "prioritized_actions": structured_recs,
         },
     }
 

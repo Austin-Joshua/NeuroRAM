@@ -17,7 +17,13 @@ import {
 import type { ChartStory } from "../../utils/chartInsights";
 
 type Row = Record<string, string | number | null>;
-const TOOLTIP_STYLE = { borderRadius: 12, border: "1px solid rgba(196, 160, 77, 0.35)", backgroundColor: "rgba(14, 31, 22, 0.92)" };
+const TOOLTIP_STYLE = {
+  borderRadius: 12,
+  border: "1px solid var(--tooltip-border)",
+  backgroundColor: "var(--tooltip-bg)",
+  color: "var(--tooltip-fg)",
+  boxShadow: "var(--shadow-md)",
+};
 
 function ChartInsight({ insight }: { insight: ChartStory | null | undefined }) {
   if (!insight) return null;
@@ -27,10 +33,10 @@ function ChartInsight({ insight }: { insight: ChartStory | null | undefined }) {
         <strong>What happened:</strong> {insight.what}
       </p>
       <p>
-        <strong>Why:</strong> {insight.why}
+        <strong>Why it happened:</strong> {insight.why}
       </p>
       <p>
-        <strong>What happens next:</strong> {insight.next}
+        <strong>What it means:</strong> {insight.next}
       </p>
     </div>
   );

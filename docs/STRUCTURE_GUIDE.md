@@ -48,7 +48,7 @@ This guide describes where code lives, what each module owns, and how telemetry 
 
 - `api_server.py` (repository root) — thin entrypoint for `uvicorn api_server:app`
 - `backend/api/api_server.py` — FastAPI application and `/api/dashboard` composition
-- Primary endpoint: `GET /api/dashboard`
+- Primary endpoint: `GET /api/dashboard` (structured `metrics`, `devices`, `trends`, `analysis`, `recommendations`; analysis uses `graph_insights.*.next` as the “what it means” line in the UI)
 
 ## Data flow
 

@@ -70,7 +70,8 @@ Top-level keys:
     "what_why_how": {
       "what": "Memory pressure is being monitored for spikes, leak tendencies, and process inefficiency.",
       "why": "Short-term RAM jumps were detected between consecutive cycles.",
-      "how_serious": "WARNING risk with medium pattern severity."
+      "how_serious": "WARNING operational risk with medium pattern severity; stability score 72.0/100.",
+      "impact": "Same plain-language impact line as how_serious for product UI (impact on system)."
     },
     "algorithm": "ML (RandomForest) + DAA (risk classification, stability indexing, greedy optimization)",
     "reasons": [],
@@ -97,11 +98,7 @@ Top-level keys:
     },
     "inefficient_processes": [],
     "processes": [],
-    "logs_preview": [],
-    "prediction_accuracy": {
-      "mae": 0.58,
-      "bias": 0.12
-    }
+    "logs_preview": []
   },
   "recommendations": {
     "category": "degrading",
@@ -116,9 +113,10 @@ Top-level keys:
 
 - Numeric trend fields may be `null` when values are unavailable.
 - `ready=false` returns the same top-level structure with safe defaults.
-- `analysis.what_why_how` is designed for human-readable UI rendering.
+- `analysis.what_why_how` is designed for human-readable UI rendering (`impact` mirrors severity for “impact on system” panels).
 - `analysis.narrative` is a single reviewer-facing paragraph (may overlap summary; UI may dedupe).
-- `analysis.graph_insights` supplies per-chart “what / why / next” copy for dashboards.
+- `analysis.graph_insights` supplies per-chart story blocks. Fields are `what`, `why`, and `next` (the React UI labels the third line **What it means**).
+- Forecast error metrics live only under `analysis.memory_patterns` (`predicted_vs_actual_mae` / `predicted_vs_actual_bias`) to avoid duplicate keys.
 - `analysis.memory_patterns.spike_timestamps` lists sample timestamps where a RAM spike was detected (for chart annotations).
 - `metrics.pipeline` tracks runtime loop health and timing.
 

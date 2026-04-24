@@ -56,11 +56,12 @@ export function KpiCards({ payload }: Props) {
         const Icon = card.icon;
         return (
           <article className="kpi-card" key={card.label}>
-            <p>
-              <Icon size={14} /> {card.label}
-            </p>
+            <div className="kpi-card-head">
+              <Icon size={16} className="kpi-card-icon" aria-hidden />
+              <p className="kpi-card-title">{card.label}</p>
+            </div>
             <strong>{card.value}</strong>
-            <span>{card.hint}</span>
+            <span className="kpi-card-hint">{card.hint}</span>
             <span className="kpi-trend">
               {trendIcon(card.label, card.trend)}
               {card.trend}

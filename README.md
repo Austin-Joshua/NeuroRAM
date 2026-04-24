@@ -19,7 +19,7 @@ It continuously collects memory and device telemetry, persists history, runs ML 
 ## Architecture
 
 ```text
-OS Collector -> SQLite DBMS -> MLT Predictor -> DAA Analyzer -> FastAPI -> React UI
+OS → DB → ML → DAA → API → UI
 ```
 
 ## Quick start
@@ -47,6 +47,16 @@ npm run dev
 ```
 
 Open the dashboard at `http://localhost:5173`.
+
+## API quick check
+
+With the backend running on port 8000:
+
+```bash
+curl -s http://127.0.0.1:8000/api/dashboard | python -m json.tool | head -n 40
+```
+
+The response is JSON with top-level keys: `ready`, `timestamp_utc`, `metrics`, `devices`, `trends`, `analysis`, and `recommendations`. See `docs/API_DOCS.md` for the full contract.
 
 ## Project map
 

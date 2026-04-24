@@ -101,6 +101,8 @@ export type DashboardPayload = {
       what: string;
       why: string;
       how_serious: string;
+      /** Plain-language system impact (mirrors how_serious when provided by API). */
+      impact?: string;
     };
     algorithm?: string;
     reasons: string[];
@@ -117,10 +119,6 @@ export type DashboardPayload = {
     inefficient_processes: ProcessInsight[];
     processes?: ProcessInsight[];
     logs_preview: Array<Record<string, string | number | null>>;
-    prediction_accuracy?: {
-      mae: number | null;
-      bias: number | null;
-    };
     narrative?: string;
     graph_insights?: {
       memory: ChartInsightBlock;

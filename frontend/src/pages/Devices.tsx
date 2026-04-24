@@ -4,6 +4,23 @@ import { getGraphInsight } from "../utils/chartInsights";
 
 type Props = { payload: DashboardPayload };
 
+function UsageBar({ pct }: { pct: number | null | undefined }) {
+  if (pct == null || Number.isNaN(Number(pct))) {
+    return <p className="panel-copy">Storage usage: not available for this device.</p>;
+  }
+  const v = Math.min(100, Math.max(0, Number(pct)));
+  return (
+    <div>
+      <div className="usage-bar" aria-hidden>
+        <div className="usage-bar-fill" style={{ width: `${v}%` }} />
+      </div>
+      <p className="panel-copy" style={{ marginTop: "0.35rem" }}>
+        <strong>{v.toFixed(0)}%</strong> of reported capacity in use
+      </p>
+    </div>
+  );
+}
+
 function storageSummary(storage: DashboardPayload["devices"]["storage"]) {
   let usedSum = 0;
   let capSum = 0;
@@ -50,14 +67,22 @@ export function DevicesPage({ payload }: Props) {
           {payload.devices.connected.map((device) => (
             <article className="device-card" key={`${device.device_id}-${device.timestamp}`}>
               <h3>{device.device_name || device.device_id}</h3>
-              <p>Type: {device.device_group}</p>
-              <p>Status: connected</p>
-              <p>Total: {device.capacity_gb == null ? "N/A" : `${device.capacity_gb} GB`}</p>
-              <p>Used: {device.used_gb == null ? "N/A" : `${device.used_gb} GB`}</p>
-              <p>Free: {device.free_gb == null ? "N/A" : `${device.free_gb} GB`}</p>
-              <p>Usage %: {device.usage_percent == null ? "N/A" : `${device.usage_percent}%`}</p>
-              <p>Files (sample): {device.file_count == null ? "N/A" : device.file_count}</p>
-              <p>Folders (sample): {device.folder_count == null ? "N/A" : device.folder_count}</p>
+              <p className="panel-copy">Type · {device.device_group}</p>
+              <UsageBar pct={device.usage_percent} />
+              <dl className="device-metrics">
+                <dt>Status</dt>
+                <dd>Connected</dd>
+                <dt>Capacity</dt>
+                <dd>{device.capacity_gb == null ? "—" : `${device.capacity_gb} GB`}</dd>
+                <dt>Used</dt>
+                <dd>{device.used_gb == null ? "—" : `${device.used_gb} GB`}</dd>
+                <dt>Free</dt>
+                <dd>{device.free_gb == null ? "—" : `${device.free_gb} GB`}</dd>
+                <dt>Files (sample scan)</dt>
+                <dd>{device.file_count == null ? "—" : device.file_count}</dd>
+                <dt>Folders (sample scan)</dt>
+                <dd>{device.folder_count == null ? "—" : device.folder_count}</dd>
+              </dl>
             </article>
           ))}
         </div>
