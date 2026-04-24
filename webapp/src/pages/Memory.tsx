@@ -15,6 +15,7 @@ export function MemoryPage({ payload }: Props) {
       </div>
       <section className="panel">
         <h2>Process-Level Memory Breakdown</h2>
+        <p className="panel-copy">Top memory consumers ranked by inefficiency score to surface likely pressure sources and leaks.</p>
         <div className="table-scroll">
           <table>
             <thead>

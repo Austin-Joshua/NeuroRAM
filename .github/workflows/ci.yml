@@ -24,7 +24,7 @@ jobs:
 
       - name: Compile backend modules
         run: |
-          python -m py_compile api_server.py neuroram/backend/os/system_monitor.py neuroram/backend/dbms/database.py
+          python -m py_compile api_server.py neuroram/backend/os/system_monitor.py neuroram/backend/dbms/database.py neuroram/backend/daa/risk_analyzer.py neuroram/backend/daa/stability_index.py
 
       - name: Run backend unit tests
         run: pytest -q tests
@@ -56,3 +56,6 @@ jobs:
 
       - name: Build frontend
         run: npm run build
+
+      - name: Type-check frontend
+        run: npx tsc -b

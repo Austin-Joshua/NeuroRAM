@@ -49,7 +49,13 @@ PIPELINE_STATE: dict[str, Any] = {
     "last_cycle_utc": None,
     "last_error": None,
     "last_prediction": None,
+    "last_success_utc": None,
+    "last_cycle_duration_ms": None,
 }
+FILE_STATS_CACHE: dict[str, tuple[float, dict[str, int | None]]] = {}
+FILE_STATS_TTL_SEC = 60.0
+
+
 PIPELINE_LOCK = threading.Lock()
 PIPELINE_STOP = threading.Event()
 PIPELINE_THREAD: threading.Thread | None = None
@@ -133,22 +139,28 @@ def _pipeline_loop() -> None:
     cycle_count = 0
     while not PIPELINE_STOP.is_set():
         cycle_count += 1
+        cycle_start = time.perf_counter()
         try:
             result = _pipeline_cycle(db, ml, previous_devices, cycle_count)
             previous_devices = result["state"]
+            duration_ms = round((time.perf_counter() - cycle_start) * 1000.0, 2)
             _set_pipeline_state(
                 running=True,
                 cycles=cycle_count,
                 last_cycle_utc=datetime.now(timezone.utc).isoformat(),
                 last_error=None,
                 last_prediction=result["predicted_ram"],
+                last_success_utc=datetime.now(timezone.utc).isoformat(),
+                last_cycle_duration_ms=duration_ms,
             )
         except Exception as exc:
+            duration_ms = round((time.perf_counter() - cycle_start) * 1000.0, 2)
             _set_pipeline_state(
                 running=True,
                 cycles=cycle_count,
                 last_cycle_utc=datetime.now(timezone.utc).isoformat(),
                 last_error=str(exc),
+                last_cycle_duration_ms=duration_ms,
             )
         PIPELINE_STOP.wait(CONFIG.collection_interval_sec)
     _set_pipeline_state(running=False)
@@ -265,6 +277,10 @@ def _storage_file_stats(mountpoint: str | None, max_entries: int = 5000) -> dict
         root = str(mountpoint)
         if not os.path.exists(root):
             return {"file_count": None, "folder_count": None}
+        cached = FILE_STATS_CACHE.get(root)
+        now = time.time()
+        if cached and now - cached[0] < FILE_STATS_TTL_SEC:
+            return cached[1]
         files = 0
         folders = 0
         scanned = 0
@@ -274,7 +290,9 @@ def _storage_file_stats(mountpoint: str | None, max_entries: int = 5000) -> dict
             scanned += len(dirnames) + len(filenames)
             if scanned >= max_entries:
                 break
-        return {"file_count": files, "folder_count": folders}
+        result = {"file_count": files, "folder_count": folders}
+        FILE_STATS_CACHE[root] = (now, result)
+        return result
     except Exception:
         return {"file_count": None, "folder_count": None}
 
@@ -368,12 +386,29 @@ def _memory_pattern_analysis(memory: pd.DataFrame, predictions: pd.DataFrame) ->
             mae = float(errs.abs().mean())
             bias = float(errs.mean())
 
+    severity = "low"
+    explanations = []
+    if spike_detected:
+        explanations.append("Short-term RAM jumps were detected between consecutive cycles.")
+        severity = "medium"
+    if gradual_leak_detected:
+        explanations.append("Sustained monotonic RAM growth indicates potential memory leak behavior.")
+        severity = "high"
+    if abnormal_pattern:
+        explanations.append("Observed RAM volatility is above normal operational spread.")
+        if severity == "low":
+            severity = "medium"
+    if not explanations:
+        explanations.append("Memory trend appears stable with no major anomalies in recent windows.")
+
     return {
         "spike_detected": spike_detected,
         "gradual_leak_detected": gradual_leak_detected,
         "abnormal_pattern": abnormal_pattern,
         "predicted_vs_actual_mae": None if mae is None else round(mae, 3),
         "predicted_vs_actual_bias": None if bias is None else round(bias, 3),
+        "severity": severity,
+        "explanations": explanations,
     }
 
 
@@ -592,11 +627,21 @@ def dashboard() -> dict[str, Any]:
                 f"Current RAM is {round(current_ram, 2)}%. "
                 f"Risk is {risk_report.level.value} and health category is {health_category}."
             ),
+            "what_why_how": {
+                "what": "Memory pressure is being monitored for spikes, leak tendencies, and process inefficiency.",
+                "why": (patterns.get("explanations") or [risk_report.reasons[0] if risk_report.reasons else "No major anomaly reason found."])[0],
+                "how_serious": f"{risk_report.level.value} risk with {patterns.get('severity', 'low')} pattern severity.",
+            },
+            "algorithm": "ML (RandomForest) + DAA (risk classification, stability indexing, greedy optimization)",
             "reasons": risk_report.reasons,
             "memory_patterns": patterns,
             "inefficient_processes": ineff,
             "processes": process.fillna("").head(25).to_dict(orient="records"),
             "logs_preview": analysis_rows.fillna("").head(40).to_dict(orient="records"),
+            "prediction_accuracy": {
+                "mae": patterns.get("predicted_vs_actual_mae"),
+                "bias": patterns.get("predicted_vs_actual_bias"),
+            },
         },
         "recommendations": {
             "category": health_category,
@@ -606,22 +651,5 @@ def dashboard() -> dict[str, Any]:
         },
     }
 
-    # Backward-compatible keys for existing consumers.
-    response["summary"] = {"text": response["analysis"]["summary"]}
-    response["kpis"] = {
-        "ram_now_percent": response["metrics"]["ram_now_percent"],
-        "predicted_ram_percent": response["metrics"]["predicted_ram_percent"],
-        "stability_score": response["metrics"]["stability_score"],
-        "risk_status": response["metrics"]["risk_level"],
-        "connected_devices": response["metrics"]["connected_devices"],
-        "process_count": len(process),
-    }
-    response["actions"] = {
-        "dos": response["recommendations"]["dos"],
-        "donts": response["recommendations"]["donts"],
-        "reasons": response["analysis"]["reasons"],
-        "analysis": response["analysis"]["logs_preview"],
-        "alerts": alerts.fillna("").head(50).to_dict(orient="records"),
-    }
     return response
 

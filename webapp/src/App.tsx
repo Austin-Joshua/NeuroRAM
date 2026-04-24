@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { Sidebar } from "./components/layout/Sidebar";
-import type { AppPage } from "./components/layout/Sidebar";
 import { TopBar } from "./components/layout/TopBar";
 import { useDashboard } from "./hooks/useDashboard";
 import { DashboardPage } from "./pages/Dashboard";
@@ -23,14 +23,20 @@ const getInitialCollapsed = (): boolean => {
   return window.matchMedia("(max-width: 960px)").matches;
 };
 
-function App() {
+function AppShell() {
   const { payload, loading, error } = useDashboard();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [theme, setTheme] = useState<"dark" | "light">(getInitialTheme);
-  const [activePage, setActivePage] = useState<AppPage>("Dashboard");
   const [collapsed, setCollapsed] = useState(getInitialCollapsed);
   const [isMobile, setIsMobile] = useState(getInitialCollapsed);
   const [showPredicted, setShowPredicted] = useState(true);
   const [showActual, setShowActual] = useState(true);
+  const activePage = useMemo(() => {
+    const key = location.pathname.replace("/", "").toLowerCase();
+    if (!key) return "dashboard";
+    return key;
+  }, [location.pathname]);
 
   useEffect(() => {
     document.body.dataset.theme = theme;
@@ -49,8 +55,8 @@ function App() {
     return () => media.removeEventListener("change", onChange);
   }, []);
 
-  const handleSelectPage = (page: AppPage) => {
-    setActivePage(page);
+  const handleSelectPage = (page: string) => {
+    navigate(`/${page}`);
     if (window.matchMedia("(max-width: 960px)").matches) {
       setCollapsed(true);
     }
@@ -64,7 +70,8 @@ function App() {
         <TopBar
           payload={payload}
           theme={theme}
-          onHomeClick={() => setActivePage("Dashboard")}
+          activePage={activePage}
+          onHomeClick={() => navigate("/dashboard")}
           onMenuToggle={() => setCollapsed((v) => !v)}
           onThemeToggle={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
         />
@@ -72,17 +79,26 @@ function App() {
         {error ? <section className="panel error">Failed to fetch data: {error}</section> : null}
         {payload && !payload.ready ? <section className="panel">{payload.message ?? "No data available yet."}</section> : null}
         {payload?.ready && (
-          <>
-            {activePage === "Dashboard" ? <DashboardPage payload={payload} showPredicted={showPredicted} showActual={showActual} setShowPredicted={setShowPredicted} setShowActual={setShowActual} /> : null}
-            {activePage === "Memory" ? <MemoryPage payload={payload} /> : null}
-            {activePage === "Devices" ? <DevicesPage payload={payload} /> : null}
-            {activePage === "Trends" ? <TrendsPage payload={payload} showPredicted={showPredicted} showActual={showActual} setShowPredicted={setShowPredicted} setShowActual={setShowActual} /> : null}
-            {activePage === "Analysis" ? <AnalysisPage payload={payload} /> : null}
-            {activePage === "History" ? <HistoryPage payload={payload} /> : null}
-          </>
+          <Routes>
+            <Route path="/dashboard" element={<DashboardPage payload={payload} showPredicted={showPredicted} showActual={showActual} setShowPredicted={setShowPredicted} setShowActual={setShowActual} />} />
+            <Route path="/memory" element={<MemoryPage payload={payload} />} />
+            <Route path="/devices" element={<DevicesPage payload={payload} />} />
+            <Route path="/trends" element={<TrendsPage payload={payload} showPredicted={showPredicted} showActual={showActual} setShowPredicted={setShowPredicted} setShowActual={setShowActual} />} />
+            <Route path="/analysis" element={<AnalysisPage payload={payload} />} />
+            <Route path="/history" element={<HistoryPage payload={payload} />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
         )}
       </main>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppShell />
+    </BrowserRouter>
   );
 }
 

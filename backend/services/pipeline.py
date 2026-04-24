@@ -1,4 +1,8 @@
-"""Orchestration service wrapper for OS -> DBMS -> MLT -> DAA flow."""
+"""Orchestration service wrapper for OS -> DBMS -> MLT -> DAA flow.
+
+This module keeps a stable import surface under ``backend/services`` while the
+runtime implementation continues to live in domain modules.
+"""
 
 from backend.OS.system_monitor import collect_and_store
 from backend.DBMS.database import DatabaseManager

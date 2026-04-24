@@ -15,6 +15,7 @@ import {
 } from "recharts";
 
 type Row = Record<string, string | number | null>;
+const TOOLTIP_STYLE = { borderRadius: 12, border: "1px solid rgba(196, 160, 77, 0.35)", backgroundColor: "rgba(14, 31, 22, 0.92)" };
 
 export function MemoryUsageChart({ rows }: { rows: Row[] }) {
   return (
@@ -25,10 +26,10 @@ export function MemoryUsageChart({ rows }: { rows: Row[] }) {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="timestamp" minTickGap={22} tick={{ fontSize: 11 }} />
           <YAxis domain={[0, 100]} />
-          <Tooltip />
+          <Tooltip contentStyle={TOOLTIP_STYLE} />
           <Legend />
-          <Area type="monotone" dataKey="ram_percent" stroke="#16a34a" fill="rgba(22,163,74,.28)" />
-          <Area type="monotone" dataKey="swap_percent" stroke="#d4af37" fill="rgba(212,175,55,.2)" />
+          <Area type="monotone" dataKey="ram_percent" name="RAM %" stroke="#1f7a4d" fill="rgba(31,122,77,.32)" />
+          <Area type="monotone" dataKey="swap_percent" name="Swap %" stroke="#d4af37" fill="rgba(212,175,55,.2)" />
           <Brush dataKey="timestamp" height={20} stroke="#d4af37" />
         </AreaChart>
       </ResponsiveContainer>
@@ -45,10 +46,10 @@ export function PredictionChart({ rows, showPredicted, showActual }: { rows: Row
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="timestamp" minTickGap={22} tick={{ fontSize: 11 }} />
           <YAxis domain={[0, 100]} />
-          <Tooltip />
+          <Tooltip contentStyle={TOOLTIP_STYLE} />
           <Legend />
-          {showPredicted ? <Line type="monotone" dataKey="predicted_ram_percent" stroke="#d4af37" dot={false} /> : null}
-          {showActual ? <Line type="monotone" dataKey="actual_ram_percent" stroke="#16a34a" dot={false} /> : null}
+          {showPredicted ? <Line type="monotone" dataKey="predicted_ram_percent" name="Predicted %" stroke="#d4af37" dot={false} strokeWidth={2} /> : null}
+          {showActual ? <Line type="monotone" dataKey="actual_ram_percent" name="Actual %" stroke="#1f7a4d" dot={false} strokeWidth={2} /> : null}
           <Brush dataKey="timestamp" height={20} stroke="#d4af37" />
         </LineChart>
       </ResponsiveContainer>
@@ -65,9 +66,9 @@ export function StabilityChart({ rows }: { rows: Row[] }) {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="timestamp" minTickGap={22} tick={{ fontSize: 11 }} />
           <YAxis domain={[0, 100]} />
-          <Tooltip />
+          <Tooltip contentStyle={TOOLTIP_STYLE} />
           <Legend />
-          <Line type="monotone" dataKey="stability_index" stroke="#16a34a" dot={false} />
+          <Line type="monotone" dataKey="stability_index" name="Stability Index" stroke="#1f7a4d" dot={false} strokeWidth={2} />
           <Brush dataKey="timestamp" height={20} stroke="#d4af37" />
         </LineChart>
       </ResponsiveContainer>
@@ -84,11 +85,11 @@ export function DeviceActivityChart({ rows }: { rows: Row[] }) {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="timestamp" minTickGap={22} tick={{ fontSize: 11 }} />
           <YAxis />
-          <Tooltip />
+          <Tooltip contentStyle={TOOLTIP_STYLE} />
           <Legend />
-          <Bar dataKey="active_devices" fill="#16a34a" />
-          <Bar dataKey="connected_events" fill="#d4af37" />
-          <Bar dataKey="disconnected_events" fill="#f97316" />
+          <Bar dataKey="active_devices" name="Active Devices" fill="#1f7a4d" />
+          <Bar dataKey="connected_events" name="Connected Events" fill="#d4af37" />
+          <Bar dataKey="disconnected_events" name="Disconnected Events" fill="#f97316" />
           <Brush dataKey="timestamp" height={20} stroke="#d4af37" />
         </BarChart>
       </ResponsiveContainer>

@@ -4,12 +4,13 @@ import type { DashboardPayload } from "../../services/api";
 type Props = {
   payload: DashboardPayload | null;
   theme: "dark" | "light";
+  activePage: string;
   onHomeClick: () => void;
   onMenuToggle: () => void;
   onThemeToggle: () => void;
 };
 
-export function TopBar({ payload, theme, onHomeClick, onMenuToggle, onThemeToggle }: Props) {
+export function TopBar({ payload, theme, activePage, onHomeClick, onMenuToggle, onThemeToggle }: Props) {
   const riskClass = payload?.metrics.risk_level.toLowerCase() ?? "normal";
   const showAlertDot = ["warning", "critical", "emergency"].includes(riskClass);
   const isLive = Boolean(payload?.metrics.pipeline?.running);
@@ -26,11 +27,12 @@ export function TopBar({ payload, theme, onHomeClick, onMenuToggle, onThemeToggl
           </div>
           <div>
             <h1>NeuroRAM</h1>
-            <p>Memory Intelligence System</p>
+            <p>Memory + Device Intelligence</p>
           </div>
         </button>
       </div>
       <div className="top-actions">
+        <span className="pill page-pill">{activePage.toUpperCase()}</span>
         <span className={`pill ${riskClass}`}>
           {showAlertDot ? <span className="status-dot alert" /> : null}
           {payload?.ready ? payload.metrics.risk_level : "CONNECTING"}

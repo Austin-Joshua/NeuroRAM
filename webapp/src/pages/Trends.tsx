@@ -24,6 +24,10 @@ export function TrendsPage({ payload, showPredicted, showActual, setShowPredicte
   return (
     <div className="page-grid">
       <section className="panel">
+        <h2>Trend Intelligence</h2>
+        <p className="panel-copy">Correlate memory movement, forecast quality, stability behavior, and external device events over time.</p>
+      </section>
+      <section className="panel">
         <h2>Trend View Controls</h2>
         <div className="switch-row">
           <label>

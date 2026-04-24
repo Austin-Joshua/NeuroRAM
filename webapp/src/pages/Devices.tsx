@@ -13,6 +13,12 @@ export function DevicesPage({ payload }: Props) {
   return (
     <div className="page-grid">
       <section className="panel">
+        <h2>Device Intelligence</h2>
+        <p className="panel-copy">
+          Live storage and peripheral telemetry with timeline awareness. Track utilization, connection churn, and attachment behavior.
+        </p>
+      </section>
+      <section className="panel">
         <h2>Connected Devices</h2>
         <div className="device-grid">
           {payload.devices.connected.length === 0 ? <p>No external devices connected.</p> : null}

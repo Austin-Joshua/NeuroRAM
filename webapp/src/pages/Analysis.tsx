@@ -16,10 +16,24 @@ export function AnalysisPage({ payload }: Props) {
           <span className={`risk-badge ${riskClass}`}>{payload.metrics.risk_level}</span>
           <p>{payload.analysis.summary}</p>
         </div>
+        <div className="analysis-brief">
+          <article>
+            <h3>What</h3>
+            <p>{payload.analysis.what_why_how?.what ?? (payload.analysis.memory_patterns.spike_detected ? "Short-term memory spikes are present." : "No severe short-term spikes detected.")}</p>
+          </article>
+          <article>
+            <h3>Why</h3>
+            <p>{payload.analysis.what_why_how?.why ?? payload.analysis.reasons[0] ?? "Memory behavior is currently stable."}</p>
+          </article>
+          <article>
+            <h3>How Serious</h3>
+            <p>{payload.analysis.what_why_how?.how_serious ?? `Risk level is ${payload.metrics.risk_level} with stability score ${payload.metrics.stability_score.toFixed(1)}.`}</p>
+          </article>
+        </div>
         <div className="analysis-grid">
           <article>
             <h3>Algorithm Used</h3>
-            <p>ML (Random Forest) + DAA (Risk Analyzer and Stability Scoring)</p>
+            <p>{payload.analysis.algorithm ?? "ML (Random Forest) + DAA (Risk Analyzer and Stability Scoring)"}</p>
           </article>
           <article>
             <h3>Prediction Efficiency</h3>

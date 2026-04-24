@@ -19,6 +19,12 @@ export function DashboardPage({ payload, showPredicted, showActual, setShowPredi
   return (
     <div className="page-grid">
       <section className="panel">
+        <h2>Command Center</h2>
+        <p className="panel-copy">
+          Real-time memory posture and device behavior in one view. Track pressure, forecast drift, and act before instability spreads.
+        </p>
+      </section>
+      <section className="panel">
         <h2>Chart Controls</h2>
         <div className="switch-row">
           <label>

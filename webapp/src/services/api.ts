@@ -90,6 +90,12 @@ export type DashboardPayload = {
   };
   analysis: {
     summary: string;
+    what_why_how?: {
+      what: string;
+      why: string;
+      how_serious: string;
+    };
+    algorithm?: string;
     reasons: string[];
     memory_patterns: {
       spike_detected: boolean;
@@ -101,6 +107,10 @@ export type DashboardPayload = {
     inefficient_processes: ProcessInsight[];
     processes?: ProcessInsight[];
     logs_preview: Array<Record<string, string | number | null>>;
+    prediction_accuracy?: {
+      mae: number | null;
+      bias: number | null;
+    };
   };
   recommendations: {
     category: string;
