@@ -162,25 +162,36 @@ body {
 }
 
 .logo-dot {
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   border-radius: 12px;
   border: 1px solid rgba(212, 175, 55, 0.7);
   display: grid;
   place-items: center;
-  color: var(--green);
+  flex-shrink: 0;
   background: var(--surface-strong);
 }
 
-.brand-block h1 {
-  margin: 0;
-  font-size: 1.2rem;
+.brand-titles {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.12rem;
+  text-align: left;
 }
 
-.brand-block p {
+.brand-titles h1 {
+  margin: 0;
+  font-size: 1.22rem;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+}
+
+.brand-titles p {
   margin: 0;
   color: var(--text-muted);
   font-size: 0.82rem;
+  line-height: 1.2;
 }
 
 .pill {
@@ -285,6 +296,17 @@ body {
   margin-top: 0.28rem;
   color: var(--green) !important;
   font-size: 0.76rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.kpi-trend-icon.up {
+  color: var(--green);
+}
+
+.kpi-trend-icon.down {
+  color: #f97316;
 }
 
 .kpi-card strong {
@@ -301,6 +323,32 @@ body {
 
 .chart-box {
   padding: 0.85rem;
+}
+
+.chart-subtitle {
+  margin: 0 0 0.65rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.chart-insight {
+  margin-top: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(31, 122, 77, 0.07);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.chart-insight p {
+  margin: 0.32rem 0;
+}
+
+.chart-insight strong {
+  color: var(--gold);
+  font-weight: 600;
 }
 
 .device-grid,
@@ -334,6 +382,72 @@ body {
 
 .dont-panel li {
   color: #f97316;
+}
+
+.do-panel.card-accent-green {
+  border-color: rgba(31, 122, 77, 0.42);
+  box-shadow: 0 8px 22px rgba(31, 122, 77, 0.08);
+}
+
+.dont-panel.card-accent-red {
+  border-color: rgba(249, 115, 22, 0.38);
+  box-shadow: 0 8px 22px rgba(249, 115, 22, 0.06);
+}
+
+.analysis-narrative {
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+  line-height: 1.58;
+  color: var(--text);
+}
+
+.device-timeline {
+  display: flex;
+  flex-direction: column;
+}
+
+.device-timeline-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.device-timeline-item:last-child {
+  border-bottom: 0;
+}
+
+.device-timeline-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--green);
+  margin-top: 0.38rem;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.28);
+}
+
+.device-timeline-item.is-off .device-timeline-dot {
+  background: #f97316;
+}
+
+.device-summary-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  backdrop-filter: var(--glass);
+  box-shadow: var(--shadow);
+  font-size: 0.86rem;
+  color: var(--text-muted);
+}
+
+.device-summary-bar strong {
+  color: var(--text);
 }
 
 .filter-row {

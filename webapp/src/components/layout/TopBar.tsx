@@ -1,5 +1,6 @@
-import { Activity, BrainCircuit, Menu, MoonStar, Sun } from "lucide-react";
+import { Activity, Menu, MoonStar, Sun } from "lucide-react";
 import type { DashboardPayload } from "../../services/api";
+import { NeuroRAMLogo } from "../brand/NeuroRAMLogo";
 
 type Props = {
   payload: DashboardPayload | null;
@@ -24,10 +25,10 @@ export function TopBar({ payload, theme, activePage, onHomeClick, onMenuToggle, 
           <Menu size={16} />
         </button>
         <button className="brand-home" onClick={onHomeClick} aria-label="Go to dashboard">
-          <div className="logo-dot">
-            <BrainCircuit size={18} />
+          <div className="logo-dot" aria-hidden>
+            <NeuroRAMLogo size={34} />
           </div>
-          <div>
+          <div className="brand-titles">
             <h1>NeuroRAM</h1>
             <p>Memory + Device Intelligence</p>
           </div>

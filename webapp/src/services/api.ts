@@ -49,12 +49,14 @@ export type StabilityTrendRow = {
 };
 
 export type ProcessInsight = {
-  pid: number;
-  name: string;
-  rss_mb: number;
-  memory_percent: number;
-  inefficiency_score: number;
+  pid: number | null;
+  name: string | null;
+  rss_mb: number | null;
+  memory_percent: number | null;
+  inefficiency_score: number | null;
 };
+
+export type ChartInsightBlock = { what: string; why: string; next: string };
 
 export type DashboardPayload = {
   ready: boolean;
@@ -110,6 +112,7 @@ export type DashboardPayload = {
       predicted_vs_actual_bias: number | null;
       severity?: string;
       explanations?: string[];
+      spike_timestamps?: string[];
     };
     inefficient_processes: ProcessInsight[];
     processes?: ProcessInsight[];
@@ -117,6 +120,13 @@ export type DashboardPayload = {
     prediction_accuracy?: {
       mae: number | null;
       bias: number | null;
+    };
+    narrative?: string;
+    graph_insights?: {
+      memory: ChartInsightBlock;
+      prediction: ChartInsightBlock;
+      stability: ChartInsightBlock;
+      device_activity: ChartInsightBlock;
     };
   };
   recommendations: {

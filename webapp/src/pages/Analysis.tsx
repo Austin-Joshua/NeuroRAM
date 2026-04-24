@@ -8,13 +8,16 @@ export function AnalysisPage({ payload }: Props) {
     payload.analysis.memory_patterns.predicted_vs_actual_mae == null
       ? null
       : Number(Math.max(0, Math.min(100, 100 - payload.analysis.memory_patterns.predicted_vs_actual_mae * 8)).toFixed(2));
+  const narrative = payload.analysis.narrative ?? payload.analysis.summary;
+
   return (
     <div className="page-grid">
       <section className="panel">
         <h2>Risk and Algorithm Summary</h2>
         <div className="analysis-top">
           <span className={`risk-badge ${riskClass}`}>{payload.metrics.risk_level}</span>
-          <p>{payload.analysis.summary}</p>
+          <p className="analysis-narrative">{narrative}</p>
+          {narrative.trim() !== payload.analysis.summary.trim() ? <p className="panel-copy">{payload.analysis.summary}</p> : null}
         </div>
         <div className="analysis-brief">
           <article>
@@ -50,7 +53,7 @@ export function AnalysisPage({ payload }: Props) {
         </div>
       </section>
       <div className="two-col">
-        <section className="panel do-panel">
+        <section className="panel do-panel card-accent-green">
           <h2>Do’s</h2>
           <ul>
             {payload.recommendations.dos.map((item) => (
@@ -58,7 +61,7 @@ export function AnalysisPage({ payload }: Props) {
             ))}
           </ul>
         </section>
-        <section className="panel dont-panel">
+        <section className="panel dont-panel card-accent-red">
           <h2>Don’ts</h2>
           <ul>
             {payload.recommendations.donts.map((item) => (

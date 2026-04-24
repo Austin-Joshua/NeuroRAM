@@ -1,4 +1,4 @@
-import { HardDrive, LineChart, MemoryStick, ShieldCheck } from "lucide-react";
+import { HardDrive, LineChart, MemoryStick, ShieldCheck, TrendingDown, TrendingUp } from "lucide-react";
 import type { DashboardPayload } from "../../services/api";
 
 type Props = { payload: DashboardPayload };
@@ -10,6 +10,15 @@ export function KpiCards({ payload }: Props) {
     .join(", ");
   const predictionDelta =
     payload.metrics.predicted_ram_percent == null ? null : payload.metrics.predicted_ram_percent - payload.metrics.ram_now_percent;
+  const trendIcon = (label: string, trend: string) => {
+    if (label === "Predicted Memory" && trend.includes("+")) return <TrendingUp size={14} className="kpi-trend-icon up" aria-hidden />;
+    if (label === "Predicted Memory" && trend.includes("-")) return <TrendingDown size={14} className="kpi-trend-icon down" aria-hidden />;
+    if (label === "RAM Usage" && trend.includes("High")) return <TrendingUp size={14} className="kpi-trend-icon up" aria-hidden />;
+    if (label === "Stability Score" && trend.includes("Needs")) return <TrendingDown size={14} className="kpi-trend-icon down" aria-hidden />;
+    if (label === "Active Devices" && trend.includes("activity")) return <TrendingUp size={14} className="kpi-trend-icon up" aria-hidden />;
+    return null;
+  };
+
   const cards = [
     {
       label: "RAM Usage",
@@ -52,7 +61,10 @@ export function KpiCards({ payload }: Props) {
             </p>
             <strong>{card.value}</strong>
             <span>{card.hint}</span>
-            <span className="kpi-trend">{card.trend}</span>
+            <span className="kpi-trend">
+              {trendIcon(card.label, card.trend)}
+              {card.trend}
+            </span>
           </article>
         );
       })}

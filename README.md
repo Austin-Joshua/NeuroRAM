@@ -4,14 +4,17 @@ NeuroRAM is a production-grade memory and device intelligence platform built wit
 
 It continuously collects memory and device telemetry, persists history, runs ML forecasting, performs DAA risk analysis, and serves a structured API for a premium SaaS dashboard.
 
-## Core capabilities
+## Features
 
-- Real-time RAM and swap telemetry collection
-- External device monitoring (storage, dongles, adapters)
-- ML-based RAM prediction and prediction-vs-actual tracking
-- DAA-based risk classification, stability scoring, and process prioritization
-- Structured API for dashboards and integrations
-- Reviewer-ready docs, scripts, and CI quality gates
+- Real-time RAM and swap telemetry (memory-focused; no CPU dashboard metrics)
+- External device intelligence: storage breakdown, usage, connection timeline, activity charts
+- ML (RandomForest) next-step RAM prediction with prediction-vs-actual tracking
+- DAA risk classification, stability index, greedy process prioritization, do / don’t guidance
+- Structured `GET /api/dashboard` contract: `metrics`, `devices`, `trends`, `analysis`, `recommendations`
+- Premium React UI: liquid-glass layout, KPI trends, annotated charts with plain-language insights
+- SQLite persistence with WAL-friendly access patterns
+- GitHub Actions: tests, checklist, frontend lint/build/typecheck, CodeQL, Dependabot
+- Docs: architecture, API reference, schema SQL, screenshot placeholders, start scripts
 
 ## Architecture
 
@@ -64,11 +67,21 @@ Open the dashboard at `http://localhost:5173`.
 5. FastAPI serves structured data via `/api/dashboard`.
 6. React UI renders dashboards, trends, analysis, and history.
 
+## Screenshots
+
+Capture the running UI and save under `docs/screenshots/` (see `docs/screenshots/README.md` for naming). Until then, placeholders:
+
+- Dashboard: KPI strip + RAM / prediction charts with spike annotations and insight copy
+- Devices: connected device cards, activity chart, visual timeline + table
+- Analysis: risk badge, narrative paragraph, what/why/how serious, do’s / don’ts cards
+- History: searchable log table
+
 ## Documentation index
 
 - `STRUCTURE_GUIDE.md` - repository and module responsibilities
 - `docs/API_DOCS.md` - endpoint contract and payload reference
 - `docs/database_schema.sql` - documented SQL schema
+- `docs/screenshots/README.md` - screenshot naming and demo guidance
 - `webapp/README.md` - frontend development guide
 
 ## Environment

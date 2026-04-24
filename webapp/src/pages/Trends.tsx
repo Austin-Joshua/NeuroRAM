@@ -1,5 +1,6 @@
 import type { DashboardPayload } from "../services/api";
 import { DeviceActivityChart, MemoryUsageChart, PredictionChart, StabilityChart } from "../components/charts/Charts";
+import { getGraphInsight, getSpikeTimestamps } from "../utils/chartInsights";
 
 type Props = {
   payload: DashboardPayload;
@@ -21,6 +22,7 @@ export function TrendsPage({ payload, showPredicted, showActual, setShowPredicte
     connected_events: Number(r.connected_events) || 0,
     disconnected_events: Number(r.disconnected_events) || 0,
   }));
+  const spikes = getSpikeTimestamps(payload);
   return (
     <div className="page-grid">
       <section className="panel">
@@ -39,12 +41,12 @@ export function TrendsPage({ payload, showPredicted, showActual, setShowPredicte
         </div>
       </section>
       <div className="two-col">
-        <MemoryUsageChart rows={memoryRows} />
-        <PredictionChart rows={predictionRows} showPredicted={showPredicted} showActual={showActual} />
+        <MemoryUsageChart rows={memoryRows} spikeTimestamps={spikes} insight={getGraphInsight(payload, "memory")} />
+        <PredictionChart rows={predictionRows} showPredicted={showPredicted} showActual={showActual} insight={getGraphInsight(payload, "prediction")} />
       </div>
       <div className="two-col">
-        <StabilityChart rows={stabilityRows} />
-        <DeviceActivityChart rows={deviceRows} />
+        <StabilityChart rows={stabilityRows} insight={getGraphInsight(payload, "stability")} />
+        <DeviceActivityChart rows={deviceRows} insight={getGraphInsight(payload, "device_activity")} />
       </div>
     </div>
   );

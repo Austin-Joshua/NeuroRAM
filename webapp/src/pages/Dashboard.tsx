@@ -1,6 +1,7 @@
 import type { DashboardPayload } from "../services/api";
 import { KpiCards } from "../components/cards/KpiCards";
 import { MemoryUsageChart, PredictionChart } from "../components/charts/Charts";
+import { getGraphInsight, getSpikeTimestamps } from "../utils/chartInsights";
 
 type Props = {
   payload: DashboardPayload;
@@ -15,6 +16,7 @@ export function DashboardPage({ payload, showPredicted, showActual, setShowPredi
   const predictionRows = payload.trends.prediction
     .slice(-80)
     .map((r) => ({ ...r, predicted_ram_percent: Number(r.predicted_ram_percent) || 0, actual_ram_percent: Number(r.actual_ram_percent) || 0 }));
+  const spikes = getSpikeTimestamps(payload);
 
   return (
     <div className="page-grid">
@@ -37,8 +39,8 @@ export function DashboardPage({ payload, showPredicted, showActual, setShowPredi
       </section>
       <KpiCards payload={payload} />
       <div className="two-col">
-        <MemoryUsageChart rows={memoryRows} />
-        <PredictionChart rows={predictionRows} showPredicted={showPredicted} showActual={showActual} />
+        <MemoryUsageChart rows={memoryRows} spikeTimestamps={spikes} insight={getGraphInsight(payload, "memory")} />
+        <PredictionChart rows={predictionRows} showPredicted={showPredicted} showActual={showActual} insight={getGraphInsight(payload, "prediction")} />
       </div>
     </div>
   );

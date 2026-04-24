@@ -81,7 +81,19 @@ Top-level keys:
       "predicted_vs_actual_mae": 0.58,
       "predicted_vs_actual_bias": 0.12,
       "severity": "medium",
-      "explanations": []
+      "explanations": ["Short-term RAM jumps were detected between consecutive cycles."],
+      "spike_timestamps": ["2026-04-24 10:12:00"]
+    },
+    "narrative": "Human-readable paragraph combining RAM level, risk, patterns, devices, and top reasons.",
+    "graph_insights": {
+      "memory": {
+        "what": "RAM and swap usage moved noticeably in the recent window.",
+        "why": "Sharp step changes in RAM percent were detected.",
+        "next": "Near-term usage is likely to track recent levels unless workload mix changes."
+      },
+      "prediction": { "what": "...", "why": "...", "next": "..." },
+      "stability": { "what": "...", "why": "...", "next": "..." },
+      "device_activity": { "what": "...", "why": "...", "next": "..." }
     },
     "inefficient_processes": [],
     "processes": [],
@@ -105,6 +117,9 @@ Top-level keys:
 - Numeric trend fields may be `null` when values are unavailable.
 - `ready=false` returns the same top-level structure with safe defaults.
 - `analysis.what_why_how` is designed for human-readable UI rendering.
+- `analysis.narrative` is a single reviewer-facing paragraph (may overlap summary; UI may dedupe).
+- `analysis.graph_insights` supplies per-chart “what / why / next” copy for dashboards.
+- `analysis.memory_patterns.spike_timestamps` lists sample timestamps where a RAM spike was detected (for chart annotations).
 - `metrics.pipeline` tracks runtime loop health and timing.
 
 ## Polling guidance

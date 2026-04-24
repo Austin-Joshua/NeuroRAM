@@ -118,11 +118,23 @@ def _empty_dashboard_payload(now: str, message: str) -> dict[str, Any]:
                 "predicted_vs_actual_bias": None,
                 "severity": "low",
                 "explanations": ["Insufficient data."],
+                "spike_timestamps": [],
             },
             "inefficient_processes": [],
             "processes": [],
             "logs_preview": [],
             "prediction_accuracy": {"mae": None, "bias": None},
+            "narrative": "Telemetry is starting up. Once samples accumulate, NeuroRAM will explain memory pressure, device effects, and forecast quality in plain language.",
+            "graph_insights": {
+                "memory": {
+                    "what": "Waiting for memory samples.",
+                    "why": "The collector has not written enough history yet.",
+                    "next": "Keep the backend running; charts will populate automatically.",
+                },
+                "prediction": {"what": "No forecast history yet.", "why": "The model needs a short warm-up window.", "next": "Predictions appear after initial training cycles."},
+                "stability": {"what": "Stability trend not available.", "why": "No analysis snapshots yet.", "next": "Risk and stability curves will appear shortly."},
+                "device_activity": {"what": "No device activity series yet.", "why": "Device logs are empty.", "next": "Connect a device to see timeline and activity charts."},
+            },
         },
         "recommendations": {
             "category": "stable",
@@ -414,27 +426,31 @@ def _ensure_columns(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
 
 
 def _memory_pattern_analysis(memory: pd.DataFrame, predictions: pd.DataFrame) -> dict[str, Any]:
+    empty = {
+        "spike_detected": False,
+        "gradual_leak_detected": False,
+        "abnormal_pattern": False,
+        "predicted_vs_actual_mae": None,
+        "predicted_vs_actual_bias": None,
+        "severity": "low",
+        "explanations": ["Insufficient data for pattern analysis."],
+        "spike_timestamps": [],
+    }
     if memory.empty:
-        return {
-            "spike_detected": False,
-            "gradual_leak_detected": False,
-            "abnormal_pattern": False,
-            "predicted_vs_actual_mae": None,
-            "predicted_vs_actual_bias": None,
-        }
+        return dict(empty)
     mem = memory.copy()
     mem["ram_percent"] = pd.to_numeric(mem["ram_percent"], errors="coerce")
     mem = mem.dropna(subset=["ram_percent"])
     if mem.empty:
-        return {
-            "spike_detected": False,
-            "gradual_leak_detected": False,
-            "abnormal_pattern": False,
-            "predicted_vs_actual_mae": None,
-            "predicted_vs_actual_bias": None,
-        }
+        return dict(empty)
+    mem["_ts_raw"] = mem["timestamp"]
+    mem["timestamp"] = _parse_ts(mem["timestamp"])
+    mem = mem.dropna(subset=["timestamp"]).sort_values("timestamp")
     diffs = mem["ram_percent"].diff().fillna(0.0)
-    spike_detected = bool((diffs.abs() > 6.0).any())
+    spike_mask = diffs.abs() > 6.0
+    spike_detected = bool(spike_mask.any())
+    spike_rows = mem.loc[spike_mask, "timestamp"]
+    spike_timestamps = [t.strftime("%Y-%m-%d %H:%M:%S") for t in spike_rows.head(8)]
     gradual_leak_detected = bool(detect_memory_leak(mem, window=8))
     abnormal_pattern = bool(mem["ram_percent"].tail(30).std() > 4.8 if len(mem) >= 30 else False)
 
@@ -473,7 +489,110 @@ def _memory_pattern_analysis(memory: pd.DataFrame, predictions: pd.DataFrame) ->
         "predicted_vs_actual_bias": None if bias is None else round(bias, 3),
         "severity": severity,
         "explanations": explanations,
+        "spike_timestamps": spike_timestamps,
     }
+
+
+def _graph_insights(
+    patterns: dict[str, Any],
+    risk_level: RiskLevel,
+    current_ram: float,
+    predicted_ram: float | None,
+    stability: float,
+    connected_devices: int,
+    device_events_recent: int,
+) -> dict[str, dict[str, str]]:
+    """Short storytelling blocks for each chart surface (what / why / next)."""
+    spike = bool(patterns.get("spike_detected"))
+    leak = bool(patterns.get("gradual_leak_detected"))
+    volatile = bool(patterns.get("abnormal_pattern"))
+    mae = patterns.get("predicted_vs_actual_mae")
+    bias = patterns.get("predicted_vs_actual_bias")
+
+    mem_what = (
+        "RAM and swap usage moved noticeably in the recent window."
+        if spike or volatile
+        else "RAM usage has been relatively steady in the recent window."
+    )
+    mem_why_parts: list[str] = []
+    if spike:
+        mem_why_parts.append("One or more sharp step changes in RAM percent were detected between samples.")
+    if leak:
+        mem_why_parts.append("A sustained upward drift suggests possible leak-like growth.")
+    if connected_devices and device_events_recent:
+        mem_why_parts.append("External device connect/disconnect activity coincides with some of these samples.")
+    if not mem_why_parts:
+        mem_why_parts.append("No strong anomaly signature in the latest memory trend slice.")
+    mem_next = (
+        "Expect continued pressure if background workloads stay high; watch the next prediction cycle."
+        if (predicted_ram is not None and predicted_ram > current_ram + 2)
+        else "Near-term usage is likely to track recent levels unless workload mix changes."
+    )
+
+    pred_what = "Model tracks predicted RAM versus observed values over time."
+    pred_why = (
+        f"Mean absolute error is about {mae:.2f} points."
+        if isinstance(mae, (int, float))
+        else "Not enough paired prediction/actual rows yet to score error tightly."
+    )
+    if isinstance(bias, (int, float)) and abs(float(bias)) > 1.0:
+        pred_why += f" Signed bias {float(bias):+.2f} suggests the model tends to {'over' if bias > 0 else 'under'}-estimate."
+    pred_next = (
+        "If bias persists, refresh training data or reduce bursty workloads before trusting long horizons."
+        if isinstance(mae, (int, float)) and float(mae) > 4
+        else "Forecasts should remain useful for short-horizon planning."
+    )
+
+    stab_what = f"Stability index is near {stability:.1f}/100 based on RAM, swap, and risk posture."
+    stab_why = (
+        "Higher risk or swap use drags the score down."
+        if risk_level != RiskLevel.NORMAL
+        else "Risk and swap pressure are within calmer bands."
+    )
+    stab_next = "If risk escalates, expect the stability curve to dip until pressure eases."
+
+    dev_what = "Device activity aggregates connects, disconnects, and concurrent attachments per timestamp bucket."
+    dev_why = (
+        "Frequent attach/detach churn can correlate with memory volatility on some hosts."
+        if device_events_recent >= 6
+        else "Device churn has been modest in the sampled window."
+    )
+    dev_next = "Eject unused storage and dongles when not needed to reduce noise and I/O pressure."
+
+    return {
+        "memory": {"what": mem_what, "why": " ".join(mem_why_parts), "next": mem_next},
+        "prediction": {"what": pred_what, "why": pred_why, "next": pred_next},
+        "stability": {"what": stab_what, "why": stab_why, "next": stab_next},
+        "device_activity": {"what": dev_what, "why": dev_why, "next": dev_next},
+    }
+
+
+def _narrative_analysis(
+    current_ram: float,
+    risk_level: RiskLevel,
+    health_category: str,
+    patterns: dict[str, Any],
+    reasons: list[str],
+    connected_devices: int,
+) -> str:
+    """Single human-readable paragraph for dashboards and external reviewers."""
+    sev = str(patterns.get("severity", "low"))
+    bits: list[str] = [
+        f"System RAM is near {current_ram:.1f}% with overall health marked as {health_category}.",
+        f"Risk is assessed at {risk_level.value} with pattern severity {sev}.",
+    ]
+    if patterns.get("spike_detected"):
+        bits.append("Short-term memory spikes were observed.")
+    if patterns.get("gradual_leak_detected"):
+        bits.append("A gradual upward drift suggests investigating for a possible memory leak.")
+    if patterns.get("abnormal_pattern"):
+        bits.append("RAM variability is higher than typical steady operation.")
+    if connected_devices:
+        bits.append(f"There are {connected_devices} active external device(s); heavy removable I/O can amplify pressure.")
+    if reasons:
+        bits.append("Key signals: " + " ".join(reasons[:3]))
+    bits.append("This may lead to reduced responsiveness if pressure continues without mitigation.")
+    return " ".join(bits)
 
 
 def _inefficient_processes(process_df: pd.DataFrame) -> list[dict[str, Any]]:
@@ -487,12 +606,8 @@ def _inefficient_processes(process_df: pd.DataFrame) -> list[dict[str, Any]]:
         return []
     p["inefficiency_score"] = (0.7 * p["rss_mb"]) + (18.0 * p["memory_percent"])
     heavy = p[(p["rss_mb"] > 350.0) | (p["memory_percent"] > 4.0)].sort_values("inefficiency_score", ascending=False).head(6)
-    return (
-        heavy[["pid", "name", "rss_mb", "memory_percent", "inefficiency_score"]]
-        .round({"rss_mb": 2, "memory_percent": 2, "inefficiency_score": 2})
-        .fillna("")
-        .to_dict(orient="records")
-    )
+    out = heavy[["pid", "name", "rss_mb", "memory_percent", "inefficiency_score"]].round({"rss_mb": 2, "memory_percent": 2, "inefficiency_score": 2})
+    return out.where(pd.notna(out), None).to_dict(orient="records")
 
 
 def _structured_recommendations(
@@ -613,6 +728,29 @@ def dashboard() -> dict[str, Any]:
             }
         )
 
+    recent_device_events = 0
+    if not device_logs.empty:
+        ev = _ensure_columns(device_logs, ["event_type"])
+        recent_device_events = int(ev["event_type"].isin(["connected", "disconnected"]).tail(200).sum())
+
+    narrative = _narrative_analysis(
+        current_ram=current_ram,
+        risk_level=risk_report.level,
+        health_category=health_category,
+        patterns=patterns,
+        reasons=risk_report.reasons,
+        connected_devices=len(formatted_connected),
+    )
+    graph_insights = _graph_insights(
+        patterns=patterns,
+        risk_level=risk_report.level,
+        current_ram=current_ram,
+        predicted_ram=predicted_ram,
+        stability=float(stability),
+        connected_devices=len(formatted_connected),
+        device_events_recent=recent_device_events,
+    )
+
     # Frontend-friendly trend payload (trim and project columns).
     memory_trend = []
     if not memory.empty:
@@ -682,10 +820,12 @@ def dashboard() -> dict[str, Any]:
                 f"Current RAM is {round(current_ram, 2)}%. "
                 f"Risk is {risk_report.level.value} and health category is {health_category}."
             ),
+            "narrative": narrative,
+            "graph_insights": graph_insights,
             "what_why_how": {
-                "what": "Memory pressure is being monitored for spikes, leak tendencies, and process inefficiency.",
-                "why": (patterns.get("explanations") or [risk_report.reasons[0] if risk_report.reasons else "No major anomaly reason found."])[0],
-                "how_serious": f"{risk_report.level.value} risk with {patterns.get('severity', 'low')} pattern severity.",
+                "what": narrative.split(".")[0] + "." if narrative else "Memory and device posture is being assessed.",
+                "why": (patterns.get("explanations") or [risk_report.reasons[0] if risk_report.reasons else "No single dominant cause identified."])[0],
+                "how_serious": f"{risk_report.level.value} operational risk with {patterns.get('severity', 'low')} pattern severity; stability score {round(float(stability), 1)}/100.",
             },
             "algorithm": "ML (RandomForest) + DAA (risk classification, stability indexing, greedy optimization)",
             "reasons": risk_report.reasons,
