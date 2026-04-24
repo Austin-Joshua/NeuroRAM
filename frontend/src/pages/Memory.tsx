@@ -11,6 +11,12 @@ export function MemoryPage({ payload }: Props) {
   const spikes = getSpikeTimestamps(payload);
   return (
     <div className="page-grid">
+      <section className="panel">
+        <h2>Memory intelligence</h2>
+        <p className="panel-copy">
+          Charts explain recent RAM and swap behavior; the process table highlights heavy consumers by inefficiency score so you can tie spikes to likely culprits without raw log dumps.
+        </p>
+      </section>
       <div className="two-col">
         <MemoryUsageChart rows={memoryRows} spikeTimestamps={spikes} insight={getGraphInsight(payload, "memory")} />
         <StabilityChart rows={stabilityRows} insight={getGraphInsight(payload, "stability")} />

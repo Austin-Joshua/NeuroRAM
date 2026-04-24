@@ -52,7 +52,8 @@ export function DevicesPage({ payload }: Props) {
       <section className="panel">
         <h2>Device Intelligence</h2>
         <p className="panel-copy">
-          Live storage and peripheral telemetry with timeline awareness. Track utilization, connection churn, and attachment behavior.
+          Each card summarizes a connected device: friendly name, type, storage headroom, and usage. The timeline and table translate raw connect/disconnect events into a story you can
+          defend in a review.
         </p>
       </section>
       {summary ? (
@@ -63,7 +64,9 @@ export function DevicesPage({ payload }: Props) {
       <section className="panel">
         <h2>Connected Devices</h2>
         <div className="device-grid">
-          {payload.devices.connected.length === 0 ? <p>No external devices connected.</p> : null}
+          {payload.devices.connected.length === 0 ? (
+            <p className="panel-copy">No external devices are connected right now. When storage or peripherals attach, they will appear here with usage bars and file-scan summaries.</p>
+          ) : null}
           {payload.devices.connected.map((device) => (
             <article className="device-card" key={`${device.device_id}-${device.timestamp}`}>
               <h3>{device.device_name || device.device_id}</h3>
@@ -91,7 +94,7 @@ export function DevicesPage({ payload }: Props) {
       <section className="panel">
         <h2>Connection timeline</h2>
         <p className="panel-copy">Recent connect and disconnect events (newest first).</p>
-        {timeline.length === 0 ? <p>No recent events.</p> : null}
+        {timeline.length === 0 ? <p className="panel-copy">No recent connect or disconnect events in the captured window.</p> : null}
         <div className="device-timeline">
           {timeline.map((row, idx) => {
             const off = String(row.event_type).toLowerCase() === "disconnected";

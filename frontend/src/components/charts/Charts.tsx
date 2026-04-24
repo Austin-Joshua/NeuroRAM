@@ -17,6 +17,11 @@ import {
 import type { ChartStory } from "../../utils/chartInsights";
 
 type Row = Record<string, string | number | null>;
+
+const fmtPct = (v: unknown) => (typeof v === "number" && !Number.isNaN(v) ? `${v.toFixed(1)}%` : "—");
+const fmtScore = (v: unknown) => (typeof v === "number" && !Number.isNaN(v) ? `${v.toFixed(1)} / 100` : "—");
+const fmtCount = (v: unknown) => (typeof v === "number" && !Number.isNaN(v) ? `${Math.round(v)}` : "—");
+
 const TOOLTIP_STYLE = {
   borderRadius: 12,
   border: "1px solid var(--tooltip-border)",
@@ -28,7 +33,7 @@ const TOOLTIP_STYLE = {
 function ChartInsight({ insight }: { insight: ChartStory | null | undefined }) {
   if (!insight) return null;
   return (
-    <div className="chart-insight">
+    <div className="chart-insight" aria-live="polite">
       <p>
         <strong>What happened:</strong> {insight.what}
       </p>
@@ -69,7 +74,7 @@ export function MemoryUsageChart({
             tick={{ fontSize: 11 }}
             label={{ value: "Percent (%)", angle: -90, position: "insideLeft", fill: "var(--text-muted)", fontSize: 11 }}
           />
-          <Tooltip contentStyle={TOOLTIP_STYLE} />
+          <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v, n) => [fmtPct(v), n]} labelStyle={{ fontWeight: 600 }} />
           <Legend />
           {spikeTimestamps.slice(0, 6).map((ts, i) => (
             <ReferenceLine
@@ -120,7 +125,7 @@ export function PredictionChart({
             tick={{ fontSize: 11 }}
             label={{ value: "Percent (%)", angle: -90, position: "insideLeft", fill: "var(--text-muted)", fontSize: 11 }}
           />
-          <Tooltip contentStyle={TOOLTIP_STYLE} />
+          <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v, n) => [fmtPct(v), n]} labelStyle={{ fontWeight: 600 }} />
           <Legend />
           {showPredicted ? (
             <Line type="monotone" dataKey="predicted_ram_percent" name="Predicted %" stroke="#d4af37" dot={false} strokeWidth={2} isAnimationActive animationDuration={600} />
@@ -155,7 +160,7 @@ export function StabilityChart({ rows, insight }: { rows: Row[]; insight?: Chart
             tick={{ fontSize: 11 }}
             label={{ value: "Stability", angle: -90, position: "insideLeft", fill: "var(--text-muted)", fontSize: 11 }}
           />
-          <Tooltip contentStyle={TOOLTIP_STYLE} />
+          <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v, n) => [fmtScore(v), n]} labelStyle={{ fontWeight: 600 }} />
           <Legend />
           <Line type="monotone" dataKey="stability_index" name="Stability" stroke="#1f7a4d" dot={false} strokeWidth={2} isAnimationActive animationDuration={600} />
           <Brush dataKey="timestamp" height={20} stroke="#d4af37" />
@@ -181,7 +186,7 @@ export function DeviceActivityChart({ rows, insight }: { rows: Row[]; insight?: 
             label={{ value: "Time", position: "insideBottom", offset: -4, fill: "var(--text-muted)", fontSize: 11 }}
           />
           <YAxis tick={{ fontSize: 11 }} label={{ value: "Count", angle: -90, position: "insideLeft", fill: "var(--text-muted)", fontSize: 11 }} />
-          <Tooltip contentStyle={TOOLTIP_STYLE} />
+          <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v, n) => [fmtCount(v), n]} labelStyle={{ fontWeight: 600 }} />
           <Legend />
           <Bar dataKey="active_devices" name="Active devices" fill="#1f7a4d" isAnimationActive animationDuration={600} />
           <Bar dataKey="connected_events" name="Connected" fill="#d4af37" isAnimationActive animationDuration={600} />

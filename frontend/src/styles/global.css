@@ -449,6 +449,22 @@ body {
   width: fit-content;
 }
 
+.risk-badge.normal {
+  border-color: rgba(31, 122, 77, 0.35);
+  color: var(--green);
+}
+
+.risk-badge.warning {
+  border-color: rgba(212, 175, 55, 0.55);
+  color: var(--gold);
+}
+
+.risk-badge.critical,
+.risk-badge.emergency {
+  border-color: rgba(249, 115, 22, 0.65);
+  color: #f97316;
+}
+
 .do-panel li {
   color: var(--green);
 }
@@ -624,6 +640,92 @@ th {
   0% { transform: scale(1); opacity: 0.8; }
   50% { transform: scale(1.2); opacity: 1; }
   100% { transform: scale(1); opacity: 0.8; }
+}
+
+.system-status-banner {
+  padding: var(--space-lg);
+  border-left: 4px solid var(--green);
+  background: linear-gradient(105deg, rgba(31, 122, 77, 0.1), transparent 55%);
+}
+
+.system-status-banner--stable {
+  border-left-color: var(--green);
+}
+
+.system-status-banner--warning {
+  border-left-color: var(--gold);
+  background: linear-gradient(105deg, rgba(212, 175, 55, 0.14), transparent 55%);
+}
+
+.system-status-banner--critical {
+  border-left-color: #f97316;
+  background: linear-gradient(105deg, rgba(249, 115, 22, 0.12), transparent 55%);
+}
+
+.system-status-banner__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-sm);
+}
+
+.system-status-banner__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.28rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+.system-status-badge {
+  flex-shrink: 0;
+}
+
+.system-status-banner__detail {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+  max-width: 72ch;
+}
+
+.analysis-lead {
+  margin-bottom: var(--space-md);
+  max-width: 75ch;
+}
+
+.risk-badge--large {
+  font-size: 0.82rem;
+  padding: 0.38rem 0.75rem;
+  font-weight: 600;
+}
+
+.pattern-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+.pattern-flag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.28rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--text-muted);
+  background: var(--surface-strong);
+}
+
+.pattern-flag--on {
+  border-color: rgba(212, 175, 55, 0.55);
+  color: var(--gold);
+  background: rgba(212, 175, 55, 0.12);
 }
 
 @media (max-width: 960px) {

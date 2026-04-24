@@ -2,6 +2,7 @@ import type { DashboardPayload } from "../services/api";
 import { KpiCards } from "../components/cards/KpiCards";
 import { MemoryUsageChart, PredictionChart } from "../components/charts/Charts";
 import { getGraphInsight, getSpikeTimestamps } from "../utils/chartInsights";
+import { getSystemStatus } from "../utils/systemStatus";
 
 type Props = {
   payload: DashboardPayload;
@@ -17,13 +18,21 @@ export function DashboardPage({ payload, showPredicted, showActual, setShowPredi
     .slice(-80)
     .map((r) => ({ ...r, predicted_ram_percent: Number(r.predicted_ram_percent) || 0, actual_ram_percent: Number(r.actual_ram_percent) || 0 }));
   const spikes = getSpikeTimestamps(payload);
+  const status = getSystemStatus(payload);
 
   return (
     <div className="page-grid">
+      <section className={`panel system-status-banner system-status-banner--${status.tone}`}>
+        <div className="system-status-banner__row">
+          <h2 className="system-status-banner__title">{status.headline}</h2>
+          <span className={`risk-badge system-status-badge ${payload.metrics.risk_level.toLowerCase()}`}>{payload.metrics.risk_level}</span>
+        </div>
+        <p className="system-status-banner__detail">{status.detail}</p>
+      </section>
       <section className="panel">
         <h2>Command Center</h2>
         <p className="panel-copy">
-          Real-time memory posture and device behavior in one view. Track pressure, forecast drift, and act before instability spreads.
+          Live memory posture, forecast quality, and spike context in one place. Use chart insights below to understand what changed, why it matters, and what to watch next.
         </p>
       </section>
       <section className="panel">
