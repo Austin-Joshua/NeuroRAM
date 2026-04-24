@@ -21,8 +21,10 @@ class DatabaseManager:
 
     @contextmanager
     def _conn(self):
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=10.0)
         conn.execute("PRAGMA foreign_keys = ON;")
+        conn.execute("PRAGMA journal_mode = WAL;")
+        conn.execute("PRAGMA busy_timeout = 10000;")
         try:
             yield conn
         finally:

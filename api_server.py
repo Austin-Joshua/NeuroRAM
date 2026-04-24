@@ -71,6 +71,68 @@ def _get_pipeline_state() -> dict[str, Any]:
         return dict(PIPELINE_STATE)
 
 
+def _empty_dashboard_payload(now: str, message: str) -> dict[str, Any]:
+    return {
+        "ready": False,
+        "timestamp_utc": now,
+        "message": message,
+        "metrics": {
+            "ram_now_percent": 0.0,
+            "predicted_ram_percent": None,
+            "stability_score": 0.0,
+            "risk_level": "NORMAL",
+            "health_category": "stable",
+            "connected_devices": 0,
+            "connected_storage": 0,
+            "connected_dongles": 0,
+            "connected_network_adapters": 0,
+            "pipeline": _get_pipeline_state(),
+        },
+        "devices": {
+            "connected": [],
+            "storage": [],
+            "dongles": [],
+            "network_adapters": [],
+            "timeline": [],
+        },
+        "trends": {
+            "memory": [],
+            "prediction": [],
+            "stability": [],
+            "device_activity": [],
+        },
+        "analysis": {
+            "summary": "No telemetry data available yet.",
+            "what_why_how": {
+                "what": "No memory telemetry has been collected yet.",
+                "why": "The pipeline has not produced enough samples for analysis.",
+                "how_serious": "Low - waiting for initial data collection.",
+            },
+            "algorithm": "ML (RandomForest) + DAA (risk classification, stability indexing, greedy optimization)",
+            "reasons": [],
+            "memory_patterns": {
+                "spike_detected": False,
+                "gradual_leak_detected": False,
+                "abnormal_pattern": False,
+                "predicted_vs_actual_mae": None,
+                "predicted_vs_actual_bias": None,
+                "severity": "low",
+                "explanations": ["Insufficient data."],
+            },
+            "inefficient_processes": [],
+            "processes": [],
+            "logs_preview": [],
+            "prediction_accuracy": {"mae": None, "bias": None},
+        },
+        "recommendations": {
+            "category": "stable",
+            "dos": ["Keep telemetry running for at least a few cycles."],
+            "donts": ["Do not stop collection before baseline data is available."],
+            "prioritized_actions": [],
+        },
+    }
+
+
 def _pipeline_cycle(
     db: DatabaseManager,
     ml: MLEngine,
@@ -267,7 +329,8 @@ def _format_device_rows(df: pd.DataFrame, device_logs: pd.DataFrame) -> list[dic
     for col in cols:
         if col not in rows.columns:
             rows[col] = None
-    return rows[cols].fillna("").to_dict(orient="records")
+    projected = rows[cols]
+    return projected.where(pd.notna(projected), None).to_dict(orient="records")
 
 
 def _storage_file_stats(mountpoint: str | None, max_entries: int = 5000) -> dict[str, int | None]:
@@ -313,7 +376,8 @@ def _device_timeline(device_logs: pd.DataFrame, limit: int = 140) -> list[dict[s
         if col not in events.columns:
             events[col] = None
     events["timestamp"] = events["timestamp"].dt.strftime("%Y-%m-%d %H:%M:%S")
-    return events[cols].fillna("").to_dict(orient="records")
+    projected = events[cols]
+    return projected.where(pd.notna(projected), None).to_dict(orient="records")
 
 
 def _dongle_buffer_state(device_logs: pd.DataFrame) -> dict[str, str]:
@@ -486,16 +550,7 @@ def dashboard() -> dict[str, Any]:
 
     now = datetime.now(timezone.utc).isoformat()
     if system.empty:
-        return {
-            "ready": False,
-            "timestamp_utc": now,
-            "message": "No telemetry data available yet.",
-            "metrics": {},
-            "devices": {},
-            "trends": {},
-            "analysis": {},
-            "recommendations": {},
-        }
+        return _empty_dashboard_payload(now, "No telemetry data available yet.")
 
     latest = system.iloc[-1]
     current_ram = float(latest["ram_percent"])
@@ -567,7 +622,7 @@ def dashboard() -> dict[str, Any]:
         for col in ["ram_percent", "swap_percent", "ram_used_mb", "available_mb"]:
             if col in m.columns:
                 m[col] = pd.to_numeric(m[col], errors="coerce").round(3)
-        memory_trend = m[["timestamp", "ram_percent", "swap_percent", "ram_used_mb", "available_mb"]].fillna("").to_dict(orient="records")
+        memory_trend = m[["timestamp", "ram_percent", "swap_percent", "ram_used_mb", "available_mb"]].where(pd.notna(m), None).to_dict(orient="records")
 
     prediction_trend = []
     if not predictions.empty:
@@ -577,7 +632,7 @@ def dashboard() -> dict[str, Any]:
         for col in ["predicted_ram_percent", "actual_ram_percent"]:
             if col in pr.columns:
                 pr[col] = pd.to_numeric(pr[col], errors="coerce").round(3)
-        prediction_trend = pr[["timestamp", "predicted_ram_percent", "actual_ram_percent", "model_name"]].fillna("").to_dict(orient="records")
+        prediction_trend = pr[["timestamp", "predicted_ram_percent", "actual_ram_percent", "model_name"]].where(pd.notna(pr), None).to_dict(orient="records")
 
     stability_trend = []
     if not alerts.empty:
@@ -585,14 +640,14 @@ def dashboard() -> dict[str, Any]:
         al = _ensure_columns(al, ["timestamp", "risk_level", "stability_index"])
         al["timestamp"] = _parse_ts(al["timestamp"]).dt.strftime("%Y-%m-%d %H:%M:%S")
         al["stability_index"] = pd.to_numeric(al["stability_index"], errors="coerce").round(3)
-        stability_trend = al[["timestamp", "risk_level", "stability_index"]].fillna("").to_dict(orient="records")
+        stability_trend = al[["timestamp", "risk_level", "stability_index"]].where(pd.notna(al), None).to_dict(orient="records")
 
     device_activity = []
     if not device_summary.empty:
         ds = device_summary.copy().tail(220)
         ds = _ensure_columns(ds, ["timestamp"])
         ds["timestamp"] = _parse_ts(ds["timestamp"]).dt.strftime("%Y-%m-%d %H:%M:%S")
-        device_activity = ds.fillna("").to_dict(orient="records")
+        device_activity = ds.where(pd.notna(ds), None).to_dict(orient="records")
 
     response = {
         "ready": True,
@@ -636,8 +691,8 @@ def dashboard() -> dict[str, Any]:
             "reasons": risk_report.reasons,
             "memory_patterns": patterns,
             "inefficient_processes": ineff,
-            "processes": process.fillna("").head(25).to_dict(orient="records"),
-            "logs_preview": analysis_rows.fillna("").head(40).to_dict(orient="records"),
+            "processes": process.where(pd.notna(process), None).head(25).to_dict(orient="records"),
+            "logs_preview": analysis_rows.where(pd.notna(analysis_rows), None).head(40).to_dict(orient="records"),
             "prediction_accuracy": {
                 "mae": patterns.get("predicted_vs_actual_mae"),
                 "bias": patterns.get("predicted_vs_actual_bias"),

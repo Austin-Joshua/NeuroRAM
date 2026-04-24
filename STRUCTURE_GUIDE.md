@@ -1,59 +1,64 @@
-# NeuroRAM Directory Organization Guide
+# NeuroRAM Structure Guide
 
-This project is organized for conceptual clarity under modular layers:
+This guide describes where code lives, what each module owns, and how telemetry flows through the platform.
 
-- `webapp/` for React frontend UI
-- `neuroram/backend/` for canonical domain logic grouped by academic subjects
-- `backend/` for production-facing wrapper layout (`os`, `dbms`, `mlt`, `daa`, `api`, `services`)
-- `neuroram/db/` for physical database files and exports
-- `neuroram/config/` and `config/` for centralized settings and wrappers
+## Top-level folders
 
-## Frontend (React)
+- `webapp/` - React user interface for memory and device intelligence
+- `backend/` - stable wrapper layer used by API and external callers
+- `neuroram/backend/` - canonical implementation modules
+- `neuroram/db/` - SQLite file, exports, and reproducible seed fixtures
+- `neuroram/config/` - runtime settings and environment parsing
+- `docs/` - API, schema, and reviewer-facing documentation
+- `tests/` - unit and integration checks
 
-- `webapp/src/pages/` — route-like page modules:
-  - `Dashboard.tsx`
-  - `Memory.tsx`
-  - `Devices.tsx`
-  - `Trends.tsx`
-  - `Analysis.tsx`
-  - `History.tsx`
-- `webapp/src/components/` — reusable UI building blocks (`layout`, `cards`, `charts`, `tables`)
-- `webapp/src/hooks/useDashboard.ts` — polling + state management
-- `webapp/src/services/api.ts` — typed API payload and fetch service
-- `webapp/src/App.tsx` — multi-page shell with collapsible sidebar navigation
+## Canonical backend domains
 
-## Canonical Backend
+### `neuroram/backend/os/`
+- `collector.py`: memory/device sampling from host OS
+- `device_monitor.py`: connection state and event capture
+- `system_monitor.py`: persistence orchestration entrypoint
 
-- `neuroram/backend/os/`
-  - `collector.py`: OS telemetry collection (RAM, swap, process-memory data)
-  - `device_monitor.py`: external device detection and event generation
-  - `system_monitor.py`: collection + persistence orchestration
-- `neuroram/backend/dbms/`
-  - `database.py`: SQLite schema, inserts, and queries
-  - `models.py`: DB metadata definitions
-  - `queries.py`: SQL statements
-- `neuroram/backend/mlt/`
-  - `ml_engine.py`: model training and persistence
-  - `predictor.py`: inference for next RAM usage
-  - `trainer.py`: CLI sampling + training flow
-- `neuroram/backend/daa/`
-  - `optimizer.py`: process ranking and greedy suggestions
-  - `risk_analyzer.py`: risk classification and leak heuristic
-  - `stability_index.py`: stability scoring
+### `neuroram/backend/dbms/`
+- `queries.py`: schema and index SQL
+- `database.py`: insert/fetch operations and DB pragmas
+- `models.py`: index metadata and DB constants
 
-## Production Wrapper Backend
+### `neuroram/backend/mlt/`
+- `ml_engine.py`: model training lifecycle
+- `predictor.py`: next-step prediction
+- `trainer.py`: sampling + training utility entrypoint
 
-- `backend/os`, `backend/dbms`, `backend/mlt`, `backend/daa` — non-breaking wrappers to canonical modules
-- `backend/api/api_server.py` — wrapper entrypoint exposing FastAPI app
-- `backend/services/pipeline.py` — orchestrator-facing imports for OS -> DBMS -> MLT -> DAA flow
-- `config/config.py`, `config/settings.py` — top-level wrappers to canonical config
+### `neuroram/backend/daa/`
+- `risk_analyzer.py`: risk classification and leak heuristics
+- `stability_index.py`: stability score calculation
+- `optimizer.py`: process prioritization recommendations
 
-## Compatibility Note
+## Wrapper layer (`backend/`)
 
-Legacy `neuroram/backend/*_module/` packages and top-level wrappers re-export the same APIs as canonical modules. Prefer canonical `neuroram.backend.<domain>` for new code and use `backend/` layout for production readability.
+`backend/OS`, `backend/DBMS`, `backend/MLT`, and `backend/DAA` expose compatibility-safe imports and should delegate to canonical implementation modules. New core behavior should be implemented under `neuroram/backend/*` first.
 
-## Commands
+## API surface
 
-- `uvicorn api_server:app --reload --port 8000` — FastAPI backend
-- `cd webapp && npm run dev` — React dashboard
-- `python -m neuroram.backend.mlt.trainer` — collect samples and train models
+- `api_server.py` is the main FastAPI service.
+- `backend/api/api_server.py` is compatibility wrapper glue.
+- Primary endpoint: `/api/dashboard`.
+
+## Data flow
+
+```text
+OS -> DBMS -> MLT -> DAA -> API -> UI
+```
+
+1. OS collectors read memory/device telemetry.
+2. DBMS stores memory logs, process metrics, predictions, analysis, and device logs.
+3. MLT predicts near-future memory pressure from historical records.
+4. DAA evaluates risk, stability, and top actions.
+5. API composes structured JSON for UI consumers.
+6. UI renders dashboard, trends, devices, analysis, and history pages.
+
+## Reviewer guidance
+
+- For architecture: start at `README.md`, then `docs/API_DOCS.md`, then `api_server.py`.
+- For data persistence: read `neuroram/backend/dbms/queries.py` and `database.py`.
+- For algorithm behavior: read `neuroram/backend/mlt/` and `neuroram/backend/daa/`.

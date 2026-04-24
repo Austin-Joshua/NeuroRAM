@@ -194,6 +194,15 @@ body {
   gap: 0.28rem;
 }
 
+.meta-pill {
+  color: var(--text-muted);
+}
+
+.pill-meta {
+  opacity: 0.85;
+  font-size: 0.72rem;
+}
+
 .page-pill {
   color: var(--green);
 }
@@ -217,6 +226,19 @@ body {
 
 .status-dot.alert {
   background: #f97316;
+}
+
+.status-dot.live {
+  box-shadow: 0 0 0 4px rgba(84, 189, 134, 0.2);
+}
+
+.live-pill.running .status-dot.live {
+  animation: pulseLive 1.2s ease-in-out infinite;
+}
+
+.live-pill.idle .status-dot.live {
+  background: #a0b3a7;
+  box-shadow: none;
 }
 
 .panel {
@@ -250,12 +272,19 @@ body {
 .kpi-card {
   padding: 0.78rem;
   min-height: 124px;
+  border-color: rgba(212, 175, 55, 0.45);
 }
 
 .kpi-card p,
 .kpi-card span {
   margin: 0;
   color: var(--text-muted);
+}
+
+.kpi-trend {
+  margin-top: 0.28rem;
+  color: var(--green) !important;
+  font-size: 0.76rem;
 }
 
 .kpi-card strong {
@@ -280,6 +309,12 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 0.7rem;
+}
+
+.analysis-top {
+  display: grid;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .device-card {
@@ -340,6 +375,12 @@ th {
 
 .side-backdrop {
   display: none;
+}
+
+@keyframes pulseLive {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
 }
 
 @media (max-width: 960px) {

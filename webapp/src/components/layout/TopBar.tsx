@@ -14,6 +14,8 @@ export function TopBar({ payload, theme, activePage, onHomeClick, onMenuToggle, 
   const riskClass = payload?.metrics.risk_level.toLowerCase() ?? "normal";
   const showAlertDot = ["warning", "critical", "emergency"].includes(riskClass);
   const isLive = Boolean(payload?.metrics.pipeline?.running);
+  const latency = payload?.metrics.pipeline?.last_cycle_duration_ms;
+  const updatedAt = payload?.timestamp_utc ? new Date(payload.timestamp_utc).toLocaleTimeString() : null;
 
   return (
     <header className="top-shell">
@@ -39,10 +41,11 @@ export function TopBar({ payload, theme, activePage, onHomeClick, onMenuToggle, 
         </span>
         <span className={`pill live-pill ${isLive ? "running" : "idle"}`}>
           <span className="status-dot live" />
-          <span className="status-dot live secondary" />
           <Activity size={13} />
           {payload?.metrics.pipeline?.running ? `Live ${payload.metrics.pipeline.cycles}` : "Idle"}
+          {latency != null ? <span className="pill-meta">{latency} ms</span> : null}
         </span>
+        {updatedAt ? <span className="pill meta-pill">Updated {updatedAt}</span> : null}
         <button className="theme-icon-btn" onClick={onThemeToggle} aria-label="Toggle theme">
           {theme === "dark" ? <Sun size={16} /> : <MoonStar size={16} />}
         </button>

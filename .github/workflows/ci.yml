@@ -5,9 +5,14 @@ on:
     branches: ["**"]
   pull_request:
 
+concurrency:
+  group: neuroram-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   backend:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,13 +32,21 @@ jobs:
           python -m py_compile api_server.py neuroram/backend/os/system_monitor.py neuroram/backend/dbms/database.py neuroram/backend/daa/risk_analyzer.py neuroram/backend/daa/stability_index.py
 
       - name: Run backend unit tests
-        run: pytest -q tests
+        run: pytest -q tests --junitxml=backend-junit.xml
 
       - name: Run backend checklist
         run: python -m tests.run_checklist
 
+      - name: Upload backend junit report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-junit
+          path: backend-junit.xml
+
   frontend:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: webapp
@@ -54,8 +67,8 @@ jobs:
       - name: Lint frontend
         run: npm run lint
 
-      - name: Build frontend
-        run: npm run build
-
       - name: Type-check frontend
         run: npx tsc -b
+
+      - name: Build frontend
+        run: npm run build

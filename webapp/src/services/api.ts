@@ -5,11 +5,11 @@ export type DeviceRow = {
   device_type: string;
   device_group: string;
   mountpoint: string;
-  capacity_gb: number | "";
-  used_gb: number | "";
-  free_gb: number | "";
-  usage_percent: number | "";
-  connection_duration_sec: number | "";
+  capacity_gb: number | null;
+  used_gb: number | null;
+  free_gb: number | null;
+  usage_percent: number | null;
+  connection_duration_sec: number | null;
   source_os: string;
   buffer_state?: string;
   file_count?: number | null;
@@ -22,6 +22,9 @@ export type DeviceEventRow = {
   device_id: string;
   device_name: string;
   device_group: string;
+  device_type?: string | null;
+  mountpoint?: string | null;
+  usage_percent?: number | null;
 };
 
 export type MemoryTrendRow = {
@@ -34,14 +37,14 @@ export type MemoryTrendRow = {
 
 export type PredictionTrendRow = {
   timestamp: string;
-  predicted_ram_percent: number | "";
-  actual_ram_percent: number | "";
+  predicted_ram_percent: number | null;
+  actual_ram_percent: number | null;
   model_name: string;
 };
 
 export type StabilityTrendRow = {
   timestamp: string;
-  stability_index: number | "";
+  stability_index: number | null;
   risk_level: string;
 };
 
@@ -73,6 +76,8 @@ export type DashboardPayload = {
       last_cycle_utc: string | null;
       last_error: string | null;
       last_prediction: number | null;
+      last_success_utc?: string | null;
+      last_cycle_duration_ms?: number | null;
     };
   };
   devices: {
@@ -103,6 +108,8 @@ export type DashboardPayload = {
       abnormal_pattern: boolean;
       predicted_vs_actual_mae: number | null;
       predicted_vs_actual_bias: number | null;
+      severity?: string;
+      explanations?: string[];
     };
     inefficient_processes: ProcessInsight[];
     processes?: ProcessInsight[];

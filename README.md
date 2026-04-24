@@ -1,122 +1,85 @@
-# NeuroRAM — Intelligent Predictive Memory Optimization System
+# NeuroRAM
 
-NeuroRAM is an AI-driven memory observability and prediction platform that combines OS-level data collection, DBMS persistence, ML forecasting, risk analytics, and algorithmic optimization in a single Streamlit dashboard.
+NeuroRAM is a production-grade memory and device intelligence platform built with React, FastAPI, SQLite, and modular OS/DBMS/MLT/DAA layers.
 
-## Features
+It continuously collects memory and device telemetry, persists history, runs ML forecasting, performs DAA risk analysis, and serves a structured API for a premium SaaS dashboard.
 
-- Real-time memory and CPU monitoring using `psutil`
-- Per-process memory analysis and ranking
-- Historical storage in SQLite with auto table creation
-- ML prediction of next-step RAM usage (`RandomForestRegressor`, optional LSTM)
-- Memory leak heuristic based on sustained monotonic growth
-- Risk classification: `NORMAL`, `WARNING`, `CRITICAL`, `EMERGENCY`
-- System stability index from `0-100`
-- Greedy recommendation engine for process-level optimization
-- Modern dark-themed interactive dashboard with Plotly graphs
+## Core capabilities
 
-## Folder Structure
+- Real-time RAM and swap telemetry collection
+- External device monitoring (storage, dongles, adapters)
+- ML-based RAM prediction and prediction-vs-actual tracking
+- DAA-based risk classification, stability scoring, and process prioritization
+- Structured API for dashboards and integrations
+- Reviewer-ready docs, scripts, and CI quality gates
+
+## Architecture
 
 ```text
-NeuroRAM/
-├── neuroram/
-│   ├── frontend/
-│   │   ├── app.py            # Streamlit entry (imports dashboard)
-│   │   ├── dashboard.py      # full dashboard implementation
-│   │   ├── ui_components.py
-│   │   ├── styles.css
-│   │   ├── components/
-│   │   └── assets/
-│   ├── backend/
-│   │   ├── os/
-│   │   │   ├── collector.py
-│   │   │   └── system_monitor.py
-│   │   ├── dbms/
-│   │   │   ├── database.py
-│   │   │   ├── models.py
-│   │   │   └── queries.py
-│   │   ├── mlt/
-│   │   │   ├── ml_engine.py
-│   │   │   ├── predictor.py
-│   │   │   └── trainer.py
-│   │   └── daa/
-│   │       ├── optimizer.py
-│   │       ├── risk_analyzer.py
-│   │       └── stability_index.py
-│   ├── db/
-│   │   ├── neuroram.db
-│   │   ├── migrations/
-│   │   ├── seed_data/
-│   │   └── exports/
-│   ├── config/
-│   │   ├── config.py
-│   │   └── settings.py
-│   └── docs/
-│       ├── README.md
-│       ├── report/
-│       ├── ppt/
-│       └── diagrams/
-├── tests/
-│   ├── test_os.py
-│   ├── test_dbms.py
-│   ├── test_mlt.py
-│   └── test_daa.py
-├── app.py                      # thin shim → neuroram.frontend.dashboard
-├── requirements.txt
-└── docs/
-    ├── report.md
-    ├── presentation.md
-    └── viva_qa.md
+OS Collector -> SQLite DBMS -> MLT Predictor -> DAA Analyzer -> FastAPI -> React UI
 ```
 
-## Setup
+## Quick start
 
-1. Create and activate virtual environment:
-   - Windows PowerShell:
-     - `python -m venv .venv`
-     - `.venv\Scripts\Activate.ps1`
-2. Install dependencies:
-   - `pip install -r requirements.txt`
-3. Optional LSTM support:
-   - `pip install tensorflow`
-4. Optional runtime overrides:
-   - Copy `.env.example` to `.env` and adjust thresholds, intervals, DB filename, and CORS origins.
+### Backend
 
-## Run
+```bash
+python -m venv .venv
+# Windows
+.venv\Scripts\Activate.ps1
+# Linux/macOS
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn api_server:app --reload --port 8000
+```
 
-- Start dashboard:
-  - `streamlit run app.py` (root shim; same UI as below)
-  - or `streamlit run neuroram/frontend/app.py`
-- React makeover frontend (recommended public UI):
-  - API server: `uvicorn api_server:app --reload --port 8000`
-  - React app: `cd webapp && npm install && npm run dev`
-  - Open the Vite URL (usually `http://localhost:5173`)
-- Sample data + train RF/LSTM entry flow:
-  - `python -m neuroram.backend.mlt.trainer`
+### Frontend
 
-## Usage Flow
+```bash
+cd webapp
+npm install
+npm run dev
+```
 
-1. Launch the dashboard.
-2. NeuroRAM collects real-time system and process metrics.
-3. Data is stored in `neuroram/db/neuroram.db`.
-4. When enough data exists, the model trains and predicts next RAM usage.
-5. Risk level, leak alerts, and optimization recommendations are generated.
+Open the dashboard at `http://localhost:5173`.
 
-## Database Schema
+## Project map
 
-- `memory_logs`: periodic RAM/swap samples
-- `process_metrics`: top memory-consuming process snapshots
-- `prediction_logs`: predicted vs actual RAM percentage
-- `analysis_reports`: risk level, causes, dos/donts, stability index
-- `device_logs`: external device snapshots + connect/disconnect events
+- `webapp/` - React SaaS dashboard
+- `backend/` - stable production interface layer
+- `neuroram/backend/os/` - telemetry and device collection
+- `neuroram/backend/dbms/` - schema, persistence, and query access
+- `neuroram/backend/mlt/` - model training and prediction
+- `neuroram/backend/daa/` - risk, stability, and recommendations
+- `neuroram/db/` - runtime DB, exports, and seed data
+- `docs/` - architecture, API, schema, and reporting docs
+- `tests/` - backend verification suite
 
-## Academic Mapping
+## Data flow
 
-- **OS Concepts**: virtual memory, paging pressure, process management, resource allocation
-- **DBMS Concepts**: schema normalization, persistence, query design, table-level separation
-- **ML Concepts**: feature engineering, train/test split, regression models, model serialization
-- **DAA Concepts**: sorting-based process ranking, greedy top-k optimization strategy
+1. OS module collects memory/device state.
+2. DBMS stores telemetry and historical logs.
+3. MLT predicts near-future memory pressure.
+4. DAA scores risk severity and recommended actions.
+5. FastAPI serves structured data via `/api/dashboard`.
+6. React UI renders dashboards, trends, analysis, and history.
 
-## Notes
+## Documentation index
 
-- The app is non-destructive and does not terminate processes automatically.
-- Recommendations are advisory and human-in-the-loop.
+- `STRUCTURE_GUIDE.md` - repository and module responsibilities
+- `docs/API_DOCS.md` - endpoint contract and payload reference
+- `docs/database_schema.sql` - documented SQL schema
+- `webapp/README.md` - frontend development guide
+
+## Environment
+
+Copy `.env.example` to `.env` and adjust values for polling interval, thresholds, DB filename, and CORS origins.
+
+## One-command helpers
+
+- `start_backend.sh` / `start_backend.ps1`
+- `start_frontend.sh` / `start_frontend.ps1`
+
+## CI
+
+GitHub Actions validates backend tests/checklist, frontend lint/type/build, and security/dependency hygiene workflows.

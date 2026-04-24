@@ -13,6 +13,7 @@ export function useDashboard() {
   useEffect(() => {
     let mounted = true;
     let timer: number | null = null;
+    let hasError = false;
     const load = async () => {
       if (document.visibilityState === "hidden") return;
       try {
@@ -20,13 +21,15 @@ export function useDashboard() {
         if (!mounted) return;
         setPayload(data);
         setError(null);
+        hasError = false;
       } catch (err) {
         if (!mounted) return;
         setError(err instanceof Error ? err.message : "Failed to load dashboard");
+        hasError = true;
       } finally {
         if (mounted) setLoading(false);
         if (timer != null) window.clearTimeout(timer);
-        timer = window.setTimeout(() => void load(), error ? RETRY_MS : REFRESH_MS);
+        timer = window.setTimeout(() => void load(), hasError ? RETRY_MS : REFRESH_MS);
       }
     };
     void load();
@@ -39,7 +42,7 @@ export function useDashboard() {
       if (timer != null) window.clearTimeout(timer);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [error]);
+  }, []);
 
   return { payload, loading, error };
 }

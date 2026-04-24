@@ -33,8 +33,11 @@ def detect_memory_leak(system_df: pd.DataFrame, window: int = 8) -> bool:
 
     recent = system_df.tail(window)["ram_percent"].astype(float)
     growth = recent.iloc[-1] - recent.iloc[0]
-    strictly_increasing = all(recent.iloc[i] <= recent.iloc[i + 1] for i in range(len(recent) - 1))
-    return bool(strictly_increasing and growth >= CONFIG.leak_growth_threshold)
+    diffs = recent.diff().fillna(0.0)
+    positive_steps = int((diffs > 0).sum())
+    # Leak-like drift is often noisy; require dominant upward movement and net growth.
+    mostly_increasing = positive_steps >= max(3, window - 3)
+    return bool(mostly_increasing and growth >= CONFIG.leak_growth_threshold)
 
 
 def classify_risk(

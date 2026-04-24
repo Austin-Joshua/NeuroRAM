@@ -1,0 +1,25 @@
+{
+  "generated_at_utc": "2026-04-24T10:40:00Z",
+  "metrics": {
+    "ram_now_percent": 61.8,
+    "predicted_ram_percent": 64.1,
+    "stability_score": 79.4,
+    "risk_level": "WARNING",
+    "connected_devices": 2
+  },
+  "devices": [
+    {
+      "device_name": "PortableSSD",
+      "device_type": "usb_drive",
+      "capacity_gb": 931.5,
+      "used_gb": 211.2,
+      "free_gb": 720.3,
+      "usage_percent": 22.7
+    }
+  ],
+  "analysis": {
+    "what": "Moderate memory pressure with intermittent spikes.",
+    "why": "Background tools increased resident memory over recent cycles.",
+    "how_serious": "WARNING"
+  }
+}

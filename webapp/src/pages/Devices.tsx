@@ -27,10 +27,10 @@ export function DevicesPage({ payload }: Props) {
               <h3>{device.device_name || device.device_id}</h3>
               <p>Type: {device.device_group}</p>
               <p>Status: connected</p>
-              <p>Total: {device.capacity_gb === "" ? "N/A" : `${device.capacity_gb} GB`}</p>
-              <p>Used: {device.used_gb === "" ? "N/A" : `${device.used_gb} GB`}</p>
-              <p>Free: {device.free_gb === "" ? "N/A" : `${device.free_gb} GB`}</p>
-              <p>Usage %: {device.usage_percent === "" ? "N/A" : `${device.usage_percent}%`}</p>
+              <p>Total: {device.capacity_gb == null ? "N/A" : `${device.capacity_gb} GB`}</p>
+              <p>Used: {device.used_gb == null ? "N/A" : `${device.used_gb} GB`}</p>
+              <p>Free: {device.free_gb == null ? "N/A" : `${device.free_gb} GB`}</p>
+              <p>Usage %: {device.usage_percent == null ? "N/A" : `${device.usage_percent}%`}</p>
               <p>Files: {device.file_count == null ? "N/A" : device.file_count}</p>
               <p>Folders: {device.folder_count == null ? "N/A" : device.folder_count}</p>
             </article>
