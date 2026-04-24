@@ -2,22 +2,18 @@
 
 ## For evaluators: GitHub visibility and access
 
-If the repository asks visitors to sign in before browsing code, it is almost certainly set to **private** or restricted.
-
-**Make the project fully public (required for most coursework markers):**
-
-1. Open the repo on GitHub → **Settings** → **General**.
-2. Scroll to **Danger Zone** → **Change repository visibility** → select **Public** and confirm.
-3. Still under **Settings** → **General**, confirm **Default branch** is **`main`** (rename if needed).
-4. On the **Code** tab, confirm you see `README.md`, folders (`frontend/`, `backend/`, `db/`, `docs/`, …), and the rendered README without logging in (use a private/incognito window to verify).
-
-**Automation (optional):** install [GitHub CLI](https://cli.github.com/), run `gh auth login`, then:
+**Status check (no login required):** the GitHub API reports this repository as **public** (`"private": false`) with default branch **`main`**. Example check (any machine):
 
 ```bash
-gh repo edit Austin-Joshua/NeuroRAM --visibility public
+curl -s https://api.github.com/repos/Austin-Joshua/NeuroRAM
 ```
 
-This environment cannot change GitHub account settings without your authentication.
+In the JSON response, `"private": false` means the repository is **public**, and `"default_branch": "main"` confirms the default branch. Raw files are reachable anonymously, e.g. `README.md` at  
+`https://raw.githubusercontent.com/Austin-Joshua/NeuroRAM/main/README.md`.
+
+**If a browser still asks you to sign in before showing the Code tab:** use an **incognito/private** window, confirm the URL is exactly `https://github.com/Austin-Joshua/NeuroRAM`, and rule out VPN, corporate proxies, or extensions blocking `github.com`. The HTML landing page can look like a login prompt even when the repo is public.
+
+**If you ever need to switch visibility yourself (forks, new repos):** GitHub → **Settings** → **General** → **Danger Zone** → **Change repository visibility** → **Public**; confirm **Default branch** is **`main`**. With [GitHub CLI](https://cli.github.com/) after `gh auth login`: `gh repo edit OWNER/REPO --visibility public`.
 
 ---
 
