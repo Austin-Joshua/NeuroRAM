@@ -34,11 +34,12 @@ export function AnalysisPage({ payload }: Props) {
     payload.recommendations.donts.length > 0
       ? payload.recommendations.donts
       : ["Avoid ignoring repeated warnings if RAM climbs into higher bands or swap use grows."];
+  const topRecommendedAction = payload.recommendations.prioritized_actions?.[0];
 
   return (
     <div className="page-grid">
       <section className="panel">
-        <h2>Intelligent analysis</h2>
+        <h2>Predictive Intelligent Analysis</h2>
         <p className="panel-copy analysis-lead">
           Structured reading of memory intelligence: what the system sees, why it matters, and how it could affect responsiveness. Numbers below map to the same pipeline
           (OS → DB → ML → DAA → API) you run in production.
@@ -63,6 +64,14 @@ export function AnalysisPage({ payload }: Props) {
               {payload.analysis.what_why_how?.impact ??
                 payload.analysis.what_why_how?.how_serious ??
                 `Risk level is ${payload.metrics.risk_level} with stability score ${payload.metrics.stability_score.toFixed(1)}.`}
+            </p>
+          </article>
+          <article>
+            <h3>Recommended action</h3>
+            <p>
+              {topRecommendedAction
+                ? `${topRecommendedAction.action} (${topRecommendedAction.priority})`
+                : dosList[0] ?? "No immediate action required. Keep telemetry active and monitor trend direction."}
             </p>
           </article>
         </div>
@@ -99,7 +108,7 @@ export function AnalysisPage({ payload }: Props) {
       </section>
       <div className="two-col">
         <section className="panel do-panel card-accent-green">
-          <h2>Recommended actions</h2>
+          <h2>Predictive Recommended Actions</h2>
           <ul>
             {dosList.map((item) => (
               <li key={item}>{item}</li>
@@ -107,7 +116,7 @@ export function AnalysisPage({ payload }: Props) {
           </ul>
         </section>
         <section className="panel dont-panel card-accent-red">
-          <h2>Actions to avoid</h2>
+          <h2>Predictive Actions to Avoid</h2>
           <ul>
             {dontsList.map((item) => (
               <li key={item}>{item}</li>

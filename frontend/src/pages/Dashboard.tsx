@@ -19,6 +19,10 @@ export function DashboardPage({ payload, showPredicted, showActual, setShowPredi
     .map((r) => ({ ...r, predicted_ram_percent: Number(r.predicted_ram_percent) || 0, actual_ram_percent: Number(r.actual_ram_percent) || 0 }));
   const spikes = getSpikeTimestamps(payload);
   const status = getSystemStatus(payload);
+  const predictionDelta =
+    payload.metrics.predicted_ram_percent == null ? null : payload.metrics.predicted_ram_percent - payload.metrics.ram_now_percent;
+  const expectedTrend =
+    predictionDelta == null ? "Stable" : predictionDelta > 1 ? "Increasing" : predictionDelta < -1 ? "Decreasing" : "Stable";
 
   return (
     <div className="page-grid">
@@ -30,19 +34,32 @@ export function DashboardPage({ payload, showPredicted, showActual, setShowPredi
         <p className="system-status-banner__detail">{status.detail}</p>
       </section>
       <section className="panel">
-        <h2>Command Center</h2>
+        <h2>Predictive Memory Management Command Center</h2>
         <p className="panel-copy">
-          Live memory posture, forecast quality, and spike context in one place. Use chart insights below to understand what changed, why it matters, and what to watch next.
+          Live memory posture, forecast confidence, expected trend, and actionable guidance in one place. Use chart insights below to understand what happened, what is expected next, and what action reduces risk.
         </p>
       </section>
       <section className="panel">
-        <h2>Chart Controls</h2>
+        <h2>Predictive Summary</h2>
+        <p className="panel-copy">
+          <strong>Current vs Predicted:</strong>{" "}
+          {payload.metrics.predicted_ram_percent == null
+            ? `Current ${payload.metrics.ram_now_percent.toFixed(1)}% · prediction warming up`
+            : `Current ${payload.metrics.ram_now_percent.toFixed(1)}% vs Predicted ${payload.metrics.predicted_ram_percent.toFixed(1)}% (next interval)`}
+        </p>
+        <p className="panel-copy">
+          <strong>Expected Trend:</strong> {expectedTrend}
+          {predictionDelta == null ? "" : ` (${predictionDelta >= 0 ? "+" : ""}${predictionDelta.toFixed(2)}%)`}
+        </p>
+      </section>
+      <section className="panel">
+        <h2>Predictive Chart Controls</h2>
         <div className="switch-row">
           <label>
-            <input type="checkbox" checked={showPredicted} onChange={(e) => setShowPredicted(e.target.checked)} /> Predicted line
+            <input type="checkbox" checked={showPredicted} onChange={(e) => setShowPredicted(e.target.checked)} /> Prediction line (dashed)
           </label>
           <label>
-            <input type="checkbox" checked={showActual} onChange={(e) => setShowActual(e.target.checked)} /> Actual line
+            <input type="checkbox" checked={showActual} onChange={(e) => setShowActual(e.target.checked)} /> Current usage line
           </label>
         </div>
       </section>

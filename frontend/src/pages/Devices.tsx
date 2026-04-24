@@ -46,14 +46,25 @@ export function DevicesPage({ payload }: Props) {
   }));
   const summary = storageSummary(payload.devices.storage);
   const timeline = payload.devices.timeline.slice(0, 80);
+  const predictionDelta =
+    payload.metrics.predicted_ram_percent == null ? null : payload.metrics.predicted_ram_percent - payload.metrics.ram_now_percent;
+  const deviceImpactNote =
+    payload.metrics.connected_devices === 0
+      ? "No external-device pressure is currently affecting memory trends."
+      : predictionDelta != null && predictionDelta > 1
+      ? "External USB and peripheral activity is likely contributing to increased memory demand in the next cycle."
+      : "External devices are active; monitor their event churn to prevent avoidable memory pressure.";
 
   return (
     <div className="page-grid">
       <section className="panel">
-        <h2>Device Intelligence</h2>
+        <h2>Predictive Device Intelligence</h2>
         <p className="panel-copy">
           Each card summarizes a connected device: friendly name, type, storage headroom, and usage. The timeline and table translate raw connect/disconnect events into a story you can
           defend in a review.
+        </p>
+        <p className="panel-copy">
+          <strong>Memory impact insight:</strong> {deviceImpactNote}
         </p>
       </section>
       {summary ? (
@@ -62,7 +73,7 @@ export function DevicesPage({ payload }: Props) {
         </div>
       ) : null}
       <section className="panel">
-        <h2>Connected Devices</h2>
+        <h2>Predictive Connected Devices</h2>
         <div className="device-grid">
           {payload.devices.connected.length === 0 ? (
             <p className="panel-copy">No external devices are connected right now. When storage or peripherals attach, they will appear here with usage bars and file-scan summaries.</p>
@@ -92,7 +103,7 @@ export function DevicesPage({ payload }: Props) {
       </section>
       <DeviceActivityChart rows={activityRows} insight={getGraphInsight(payload, "device_activity")} />
       <section className="panel">
-        <h2>Connection timeline</h2>
+        <h2>Predictive Connection Timeline</h2>
         <p className="panel-copy">Recent connect and disconnect events (newest first).</p>
         {timeline.length === 0 ? <p className="panel-copy">No recent connect or disconnect events in the captured window.</p> : null}
         <div className="device-timeline">
@@ -118,7 +129,7 @@ export function DevicesPage({ payload }: Props) {
         </div>
       </section>
       <section className="panel">
-        <h2>Event history (table)</h2>
+        <h2>Predictive Event History (Table)</h2>
         <div className="table-scroll">
           <table>
             <thead>

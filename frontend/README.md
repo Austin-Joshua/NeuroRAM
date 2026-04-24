@@ -1,15 +1,15 @@
 # NeuroRAM Web UI
 
-React + TypeScript + Vite frontend for the NeuroRAM memory intelligence platform.
+React + TypeScript + Vite frontend for the NeuroRAM predictive memory management platform.
 
 ## Purpose
 
 This app consumes `GET /api/dashboard` from the FastAPI backend and renders:
 
-- Dashboard KPIs and previews
-- Memory and stability views
+- Predictive memory management dashboard KPIs and previews
+- Memory trend and prediction views
 - Device intelligence cards and timeline
-- Analysis with actionable recommendations
+- Analysis with actionable memory-management recommendations
 - Historical DB logs with filtering
 
 ## Run locally

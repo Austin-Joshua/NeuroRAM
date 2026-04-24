@@ -26,17 +26,17 @@ export function TrendsPage({ payload, showPredicted, showActual, setShowPredicte
   return (
     <div className="page-grid">
       <section className="panel">
-        <h2>Trend Intelligence</h2>
-        <p className="panel-copy">Correlate memory movement, forecast quality, stability behavior, and external device events over time.</p>
+        <h2>Predictive Memory Trend Intelligence</h2>
+        <p className="panel-copy">Correlate current memory behavior, predicted direction, stability risk, and external device impact over time.</p>
       </section>
       <section className="panel">
-        <h2>Trend View Controls</h2>
+        <h2>Predictive Trend Controls</h2>
         <div className="switch-row">
           <label>
-            <input type="checkbox" checked={showPredicted} onChange={(e) => setShowPredicted(e.target.checked)} /> Predicted line
+            <input type="checkbox" checked={showPredicted} onChange={(e) => setShowPredicted(e.target.checked)} /> Prediction line (dashed)
           </label>
           <label>
-            <input type="checkbox" checked={showActual} onChange={(e) => setShowActual(e.target.checked)} /> Actual line
+            <input type="checkbox" checked={showActual} onChange={(e) => setShowActual(e.target.checked)} /> Current usage line
           </label>
         </div>
       </section>

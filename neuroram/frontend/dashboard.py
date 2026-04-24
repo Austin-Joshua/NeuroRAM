@@ -1,4 +1,4 @@
-"""NeuroRAM Streamlit dashboard (canonical UI module)."""
+"""NeuroRAM Predictive Memory Management System (canonical Streamlit UI module)."""
 
 from __future__ import annotations
 
@@ -27,12 +27,12 @@ from backend.OS.device_monitor import DeviceSnapshot, collect_external_devices, 
 from neuroram.config.config import CONFIG
 from neuroram.config.settings import EXPORTS_DIR
 
-st.set_page_config(page_title="NeuroRAM", page_icon="🧠", layout="wide", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="NeuroRAM | Predictive Memory Management System", page_icon="🧠", layout="wide", initial_sidebar_state="collapsed")
 
 
 def risk_color(level: RiskLevel) -> str:
     return {
-        RiskLevel.NORMAL: "#22C55E",
+        RiskLevel.NORMAL: "#2563EB",
         RiskLevel.WARNING: "#F59E0B",
         RiskLevel.CRITICAL: "#EF4444",
         RiskLevel.EMERGENCY: "#B91C1C",
@@ -45,8 +45,8 @@ def get_theme_tokens(theme_mode: str, dark_variant: str) -> dict[str, object]:
             "bg": (
                 "radial-gradient(ellipse 120% 80% at 0% 0%, rgba(254, 215, 170, 0.55) 0%, transparent 50%), "
                 "radial-gradient(ellipse 100% 70% at 100% 10%, rgba(196, 181, 253, 0.45) 0%, transparent 45%), "
-                "radial-gradient(ellipse 90% 60% at 50% 100%, rgba(167, 243, 208, 0.5) 0%, transparent 50%), "
-                "linear-gradient(165deg, #fff7ed 0%, #fefce8 35%, #f0fdf4 70%, #faf5ff 100%)"
+                "radial-gradient(ellipse 90% 60% at 50% 100%, rgba(147, 197, 253, 0.45) 0%, transparent 50%), "
+                "linear-gradient(165deg, #fff7ed 0%, #fefce8 35%, #eff6ff 70%, #faf5ff 100%)"
             ),
             "text": "#0f172a",
             "sub": "#4338ca",
@@ -60,64 +60,64 @@ def get_theme_tokens(theme_mode: str, dark_variant: str) -> dict[str, object]:
             ),
             "accent": "#7c3aed",
             "grid": "rgba(15, 23, 42, 0.12)",
-            "chart_actual": "#047857",
+            "chart_actual": "#2563EB",
             "chart_pred": "#6d28d9",
             "chart_fill": "rgba(109, 40, 217, 0.12)",
-            "chart_multi": ["#047857", "#6d28d9", "#c2410c", "#0369a1", "#b45309"],
+            "chart_multi": ["#2563EB", "#6d28d9", "#c2410c", "#0369a1", "#b45309"],
         }
 
-    # Dark: deep charcoal with green/gold accents (not pure black).
+    # Dark: deep charcoal with blue/gold accents (not pure black).
     dark_palettes: dict[str, dict[str, object]] = {
         "Midnight Indigo": {
             "bg": (
-                "radial-gradient(circle at 10% 8%, rgba(34,197,94,0.08) 0%, transparent 34%), "
+                "radial-gradient(circle at 10% 8%, rgba(59,130,246,0.11) 0%, transparent 34%), "
                 "radial-gradient(circle at 92% 4%, rgba(245,158,11,0.08) 0%, transparent 34%), "
                 "linear-gradient(155deg, #0b0f0c 0%, #111316 46%, #151812 100%)"
             ),
             "text": "#f8fafc",
             "sub": "#cbd5e1",
             "card": "linear-gradient(125deg, rgba(21,24,18,0.94) 0%, rgba(15,18,16,0.96) 100%)",
-            "top": "linear-gradient(115deg, rgba(34,197,94,0.10) 0%, rgba(17,19,22,0.94) 45%, rgba(245,158,11,0.10) 100%)",
+            "top": "linear-gradient(115deg, rgba(59,130,246,0.14) 0%, rgba(17,19,22,0.94) 45%, rgba(245,158,11,0.10) 100%)",
             "accent": "#fbbf24",
             "grid": "rgba(226,232,240,0.10)",
-            "chart_actual": "#22c55e",
+            "chart_actual": "#60A5FA",
             "chart_pred": "#fbbf24",
-            "chart_fill": "rgba(34,197,94,0.14)",
-            "chart_multi": ["#22c55e", "#fbbf24", "#f87171", "#38bdf8", "#c4b5fd"],
+            "chart_fill": "rgba(96,165,250,0.16)",
+            "chart_multi": ["#60A5FA", "#fbbf24", "#f87171", "#38bdf8", "#c4b5fd"],
         },
         "Neon Slate": {
             "bg": (
-                "radial-gradient(circle at 10% 8%, rgba(21,128,61,0.11) 0%, transparent 32%), "
+                "radial-gradient(circle at 10% 8%, rgba(59,130,246,0.13) 0%, transparent 32%), "
                 "radial-gradient(circle at 92% 4%, rgba(202,138,4,0.12) 0%, transparent 30%), "
                 "linear-gradient(150deg, #0a0d0b 0%, #121417 48%, #171915 100%)"
             ),
             "text": "#f8fafc",
             "sub": "#cbd5e1",
             "card": "linear-gradient(125deg, rgba(23,25,21,0.94) 0%, rgba(13,16,14,0.96) 100%)",
-            "top": "linear-gradient(115deg, rgba(21,128,61,0.12) 0%, rgba(18,20,23,0.94) 45%, rgba(202,138,4,0.13) 100%)",
+            "top": "linear-gradient(115deg, rgba(59,130,246,0.15) 0%, rgba(18,20,23,0.94) 45%, rgba(202,138,4,0.13) 100%)",
             "accent": "#f59e0b",
             "grid": "rgba(226,232,240,0.10)",
-            "chart_actual": "#22c55e",
+            "chart_actual": "#60A5FA",
             "chart_pred": "#f59e0b",
             "chart_fill": "rgba(245,158,11,0.14)",
-            "chart_multi": ["#22c55e", "#f59e0b", "#fb7185", "#22d3ee", "#a78bfa"],
+            "chart_multi": ["#60A5FA", "#f59e0b", "#fb7185", "#22d3ee", "#a78bfa"],
         },
         "Carbon Violet": {
             "bg": (
-                "radial-gradient(circle at 10% 8%, rgba(21,128,61,0.10) 0%, transparent 34%), "
+                "radial-gradient(circle at 10% 8%, rgba(59,130,246,0.12) 0%, transparent 34%), "
                 "radial-gradient(circle at 90% 3%, rgba(245,158,11,0.09) 0%, transparent 30%), "
                 "linear-gradient(155deg, #0a0d0d 0%, #131417 44%, #19161a 100%)"
             ),
             "text": "#f8fafc",
             "sub": "#cbd5e1",
             "card": "linear-gradient(125deg, rgba(25,22,26,0.94) 0%, rgba(15,16,19,0.96) 100%)",
-            "top": "linear-gradient(115deg, rgba(21,128,61,0.11) 0%, rgba(19,20,23,0.94) 45%, rgba(245,158,11,0.11) 100%)",
+            "top": "linear-gradient(115deg, rgba(59,130,246,0.14) 0%, rgba(19,20,23,0.94) 45%, rgba(245,158,11,0.11) 100%)",
             "accent": "#fbbf24",
             "grid": "rgba(226,232,240,0.10)",
-            "chart_actual": "#22c55e",
+            "chart_actual": "#60A5FA",
             "chart_pred": "#fbbf24",
             "chart_fill": "rgba(244,114,182,0.12)",
-            "chart_multi": ["#22c55e", "#fbbf24", "#f472b6", "#2dd4bf", "#a78bfa"],
+            "chart_multi": ["#60A5FA", "#fbbf24", "#f472b6", "#2dd4bf", "#a78bfa"],
         },
     }
     return dark_palettes.get(dark_variant, dark_palettes["Midnight Indigo"])
@@ -134,7 +134,7 @@ def inject_styles(theme_mode: str, dark_variant: str, compact_mode: bool = False
     accent = str(tokens["accent"])
     status_bg = "rgba(255,255,255,0.88)" if is_light else "rgba(20,24,20,0.9)"
     top_border = "rgba(148,163,184,0.35)" if is_light else "rgba(245,158,11,0.26)"
-    card_border = "rgba(15,23,42,0.12)" if is_light else "rgba(34,197,94,0.2)"
+    card_border = "rgba(15,23,42,0.12)" if is_light else "rgba(59,130,246,0.26)"
     card_shadow = "0 6px 20px rgba(15, 23, 42, 0.08)" if is_light else "0 8px 24px rgba(2, 6, 3, 0.55)"
     compact_css = ""
     if compact_mode:
@@ -322,7 +322,7 @@ def inject_styles(theme_mode: str, dark_variant: str, compact_mode: bool = False
         font-size: clamp(0.69rem,0.8vw,0.8rem);
         font-weight: 700;
     }}
-    .confidence-high {{background: rgba(34,197,94,0.18); color:#22C55E; border-color: rgba(34,197,94,0.3);}}
+    .confidence-high {{background: rgba(59,130,246,0.2); color:#2563EB; border-color: rgba(59,130,246,0.35);}}
     .confidence-medium {{background: rgba(245,158,11,0.2); color:#B45309; border-color: rgba(245,158,11,0.35);}}
     .confidence-low {{background: rgba(239,68,68,0.16); color:#B91C1C; border-color: rgba(239,68,68,0.35);}}
     [data-testid="stMetricLabel"] p {{
@@ -827,7 +827,7 @@ def render_header(status_level: RiskLevel, monitoring_enabled: bool, theme_mode:
     c1, c2, c3 = st.columns([5, 4, 2])
     with c1:
         st.markdown('<div class="title-main">🧠 NeuroRAM</div>', unsafe_allow_html=True)
-        st.markdown('<div class="title-sub">Smart Memory Assistant for everyday users</div>', unsafe_allow_html=True)
+        st.markdown('<div class="title-sub">Predictive Memory Management System for proactive stability</div>', unsafe_allow_html=True)
     with c2:
         dot = risk_color(status_level)
         text = "Monitoring ON" if monitoring_enabled else "Monitoring OFF"
@@ -998,7 +998,7 @@ def main() -> None:
                 st.markdown("- No external storage/dongle is currently detected as connected.")
             else:
                 st.markdown(f"- {active_count} external device(s) are physically connected right now.")
-            st.markdown("- Green and gold highlights mark healthy zones and warning zones for quick action.")
+            st.markdown("- Blue and gold highlights mark healthy zones and warning zones for quick action.")
             st.markdown("</div>", unsafe_allow_html=True)
             render_action_panel(
                 dos=risk_report.dos,
@@ -1100,7 +1100,7 @@ def main() -> None:
                         "steps": [
                             {"range": [0, 45], "color": "rgba(239,68,68,0.35)"},
                             {"range": [45, 70], "color": "rgba(245,158,11,0.3)"},
-                            {"range": [70, 100], "color": "rgba(34,197,94,0.32)"},
+                            {"range": [70, 100], "color": "rgba(59,130,246,0.32)"},
                         ],
                     },
                 )

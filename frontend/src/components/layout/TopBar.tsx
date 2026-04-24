@@ -30,7 +30,7 @@ export function TopBar({ payload, theme, activePage, onHomeClick, onMenuToggle, 
           </div>
           <div className="brand-titles">
             <h1>NeuroRAM</h1>
-            <p>Memory + Device Intelligence</p>
+            <p>Predictive Memory Management System</p>
           </div>
         </button>
       </div>

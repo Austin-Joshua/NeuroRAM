@@ -1,12 +1,12 @@
 import { Menu, LayoutDashboard, MemoryStick, Usb, ChartSpline, ShieldAlert, History } from "lucide-react";
 
 const PAGE_META: Array<{ id: string; label: string; icon: typeof LayoutDashboard }> = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { id: "memory", label: "Memory", icon: MemoryStick },
-  { id: "devices", label: "Devices", icon: Usb },
-  { id: "trends", label: "Trends", icon: ChartSpline },
-  { id: "analysis", label: "Analysis", icon: ShieldAlert },
-  { id: "history", label: "History", icon: History },
+  { id: "dashboard", label: "Predictive Dashboard", icon: LayoutDashboard },
+  { id: "memory", label: "Predictive Memory", icon: MemoryStick },
+  { id: "devices", label: "Predictive Devices", icon: Usb },
+  { id: "trends", label: "Predictive Trends", icon: ChartSpline },
+  { id: "analysis", label: "Predictive Analysis", icon: ShieldAlert },
+  { id: "history", label: "Predictive History", icon: History },
 ];
 
 type Props = {

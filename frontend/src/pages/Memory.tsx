@@ -12,9 +12,9 @@ export function MemoryPage({ payload }: Props) {
   return (
     <div className="page-grid">
       <section className="panel">
-        <h2>Memory intelligence</h2>
+        <h2>Predictive Memory Analysis</h2>
         <p className="panel-copy">
-          Charts explain recent RAM and swap behavior; the process table highlights heavy consumers by inefficiency score so you can tie spikes to likely culprits without raw log dumps.
+          Charts explain current and expected memory behavior; the process table highlights likely pressure drivers so you can take management actions before risk escalates.
         </p>
       </section>
       <div className="two-col">
@@ -22,7 +22,7 @@ export function MemoryPage({ payload }: Props) {
         <StabilityChart rows={stabilityRows} insight={getGraphInsight(payload, "stability")} />
       </div>
       <section className="panel">
-        <h2>Process-Level Memory Breakdown</h2>
+        <h2>Predictive Process Memory Breakdown</h2>
         <p className="panel-copy">Top memory consumers ranked by inefficiency score to surface likely pressure sources and leaks.</p>
         <div className="table-scroll">
           <table>

@@ -16,7 +16,7 @@ export function HistoryPage({ payload }: Props) {
 
   return (
     <section className="panel">
-      <h2>History Logs</h2>
+      <h2>Predictive History Logs</h2>
       <div className="filter-row">
         <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search logs..." />
         <select value={limit} onChange={(e) => setLimit(Number(e.target.value))}>

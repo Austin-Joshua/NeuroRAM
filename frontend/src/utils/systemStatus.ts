@@ -16,20 +16,20 @@ export function getSystemStatus(payload: DashboardPayload): {
   if (level === "CRITICAL" || level === "EMERGENCY") {
     return {
       tone: "critical",
-      headline: "Critical state",
+      headline: "High Risk",
       detail: `Memory pressure is elevated (${ram.toFixed(1)}% RAM) with ${level} risk and stability at ${stab.toFixed(0)}/100. If sustained, interactive performance may suffer—use the Analysis page and prioritized actions to relieve pressure.`,
     };
   }
   if (level === "WARNING" || stab < 62) {
     return {
       tone: "warning",
-      headline: "Warning detected",
+      headline: "Memory Warning",
       detail: `Signals merit attention (${level}): ${ram.toFixed(1)}% RAM, stability ${stab.toFixed(0)}/100. This is not an emergency by itself, but trends and device churn should be watched before load increases.${live ? " Live collection is running." : ""}`,
     };
   }
   return {
     tone: "stable",
-    headline: "System stable",
+    headline: "System Stable",
     detail: `Memory posture looks healthy (${ram.toFixed(1)}% RAM) with stability ${stab.toFixed(0)}/100. ${live ? "Telemetry pipeline is active" : "Pipeline is idle"}—continue monitoring; no immediate action required.`,
   };
 }
