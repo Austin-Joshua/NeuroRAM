@@ -1,1 +1,0 @@
-"""Database storage package metadata."""

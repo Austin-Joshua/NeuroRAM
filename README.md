@@ -26,6 +26,8 @@ OS Collector -> SQLite DBMS -> MLT Predictor -> DAA Analyzer -> FastAPI -> React
 
 ### Backend
 
+The SQLite file and seed data live under `db/` at the repository root (see `neuroram/config/settings.py`). Run the API from the repository root so imports resolve.
+
 ```bash
 python -m venv .venv
 # Windows
@@ -39,7 +41,7 @@ uvicorn api_server:app --reload --port 8000
 ### Frontend
 
 ```bash
-cd webapp
+cd frontend
 npm install
 npm run dev
 ```
@@ -48,13 +50,13 @@ Open the dashboard at `http://localhost:5173`.
 
 ## Project map
 
-- `webapp/` - React SaaS dashboard
+- `frontend/` - React SaaS dashboard
 - `backend/` - stable production interface layer
 - `neuroram/backend/os/` - telemetry and device collection
 - `neuroram/backend/dbms/` - schema, persistence, and query access
 - `neuroram/backend/mlt/` - model training and prediction
 - `neuroram/backend/daa/` - risk, stability, and recommendations
-- `neuroram/db/` - runtime DB, exports, and seed data
+- `db/` - SQLite database file, exports, migrations, and seed data
 - `docs/` - architecture, API, schema, and reporting docs
 - `tests/` - backend verification suite
 
@@ -78,11 +80,12 @@ Capture the running UI and save under `docs/screenshots/` (see `docs/screenshots
 
 ## Documentation index
 
-- `STRUCTURE_GUIDE.md` - repository and module responsibilities
+- `docs/README.md` - documentation table of contents
+- `docs/STRUCTURE_GUIDE.md` - repository and module responsibilities
 - `docs/API_DOCS.md` - endpoint contract and payload reference
 - `docs/database_schema.sql` - documented SQL schema
 - `docs/screenshots/README.md` - screenshot naming and demo guidance
-- `webapp/README.md` - frontend development guide
+- `frontend/README.md` - frontend development guide
 
 ## Environment
 

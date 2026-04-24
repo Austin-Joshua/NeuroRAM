@@ -29,7 +29,7 @@ jobs:
 
       - name: Compile backend modules
         run: |
-          python -m py_compile api_server.py neuroram/backend/os/system_monitor.py neuroram/backend/dbms/database.py neuroram/backend/daa/risk_analyzer.py neuroram/backend/daa/stability_index.py
+          python -m py_compile api_server.py backend/api/api_server.py neuroram/backend/os/system_monitor.py neuroram/backend/dbms/database.py neuroram/backend/daa/risk_analyzer.py neuroram/backend/daa/stability_index.py
 
       - name: Run backend unit tests
         run: pytest -q tests --junitxml=backend-junit.xml
@@ -49,7 +49,7 @@ jobs:
     timeout-minutes: 20
     defaults:
       run:
-        working-directory: webapp
+        working-directory: frontend
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -59,7 +59,7 @@ jobs:
         with:
           node-version: "20"
           cache: npm
-          cache-dependency-path: webapp/package-lock.json
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install frontend dependencies
         run: npm ci

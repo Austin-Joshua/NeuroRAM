@@ -45,7 +45,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
 _load_dotenv(PROJECT_ROOT / ".env")
 
-DB_DIR = PACKAGE_ROOT / "db"
+DB_DIR = PROJECT_ROOT / "db"
 MIGRATIONS_DIR = DB_DIR / "migrations"
 SEED_DATA_DIR = DB_DIR / "seed_data"
 EXPORTS_DIR = DB_DIR / "exports"

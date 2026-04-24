@@ -1,5 +1,5 @@
 $ErrorActionPreference = "Stop"
 
-Set-Location webapp
+Set-Location frontend
 npm install
 npm run dev

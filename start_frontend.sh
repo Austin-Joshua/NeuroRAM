@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-cd webapp
+cd frontend
 npm install
 npm run dev
