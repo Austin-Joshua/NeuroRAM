@@ -64,6 +64,18 @@ def _classify_device(name: str) -> str:
     return "external_device"
 
 
+def _is_external_peripheral(name: str, pnp_id: str) -> bool:
+    """
+    Keep only likely external peripherals (USB receivers/dongles)
+    and avoid classifying built-in/internal devices as external.
+    """
+    lowered_name = name.lower()
+    lowered_id = pnp_id.lower()
+    if any(k in lowered_name for k in ("dongle", "receiver", "usb")):
+        return True
+    return lowered_id.startswith("usb\\") or "vid_" in lowered_id
+
+
 def _collect_storage_devices() -> List[DeviceSnapshot]:
     rows: List[DeviceSnapshot] = []
     ts = _now_iso()
@@ -159,6 +171,8 @@ def _collect_windows_pnp_devices() -> List[DeviceSnapshot]:
             if dtype == "external_device":
                 continue
             pnp_id = str(getattr(item, "PNPDeviceID", "") or name)
+            if not _is_external_peripheral(name, pnp_id):
+                continue
             rows.append(
                 DeviceSnapshot(
                     timestamp=ts,

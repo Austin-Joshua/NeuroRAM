@@ -17,6 +17,10 @@ export function MemoryPage({ payload }: Props) {
           Charts explain current and expected memory behavior; the process table highlights likely pressure drivers so you can take management actions before risk escalates.
         </p>
       </section>
+      <section className="panel live-notice">
+        <h2>Live Memory Alert</h2>
+        <p className="panel-copy">RAM and stability charts auto-update from current telemetry. Use the visuals below to catch depletion patterns early.</p>
+      </section>
       <div className="two-col">
         <MemoryUsageChart rows={memoryRows} spikeTimestamps={spikes} insight={getGraphInsight(payload, "memory")} />
         <StabilityChart rows={stabilityRows} insight={getGraphInsight(payload, "stability")} />

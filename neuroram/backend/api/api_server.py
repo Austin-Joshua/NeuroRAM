@@ -276,6 +276,49 @@ def _device_group(device_type: str) -> str:
     return "other"
 
 
+def _looks_like_demo_text(value: Any) -> bool:
+    text = str(value or "").strip().lower()
+    if not text:
+        return False
+    demo_tokens = ("demo", "sample", "mock", "testdevice", "fake")
+    return any(token in text for token in demo_tokens)
+
+
+def _drop_demo_devices(df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty:
+        return df
+    out = df.copy()
+    for col in ("device_name", "device_id", "mountpoint"):
+        if col not in out.columns:
+            out[col] = ""
+    mask = out.apply(
+        lambda row: _looks_like_demo_text(row.get("device_name"))
+        or _looks_like_demo_text(row.get("device_id"))
+        or _looks_like_demo_text(row.get("mountpoint")),
+        axis=1,
+    )
+    return out.loc[~mask].copy()
+
+
+def _recent_connected_devices(device_logs: pd.DataFrame) -> pd.DataFrame:
+    """
+    Keep only devices with fresh snapshots to avoid stale/seeded rows
+    being shown as currently connected after process restarts.
+    """
+    connected = _latest_connected_devices(device_logs)
+    if connected.empty:
+        return connected
+    connected = _drop_demo_devices(connected)
+    if connected.empty:
+        return connected
+    if "timestamp" not in connected.columns:
+        return connected
+    ts = _parse_ts(connected["timestamp"])
+    freshness_window_sec = max(30, int(CONFIG.collection_interval_sec) * 3)
+    cutoff = datetime.now(timezone.utc) - pd.Timedelta(seconds=freshness_window_sec)
+    return connected.loc[ts >= cutoff].copy()
+
+
 def _latest_connected_devices(device_logs: pd.DataFrame) -> pd.DataFrame:
     if device_logs.empty or "device_id" not in device_logs.columns:
         return pd.DataFrame()
@@ -379,7 +422,9 @@ def _device_timeline(device_logs: pd.DataFrame, limit: int = 140) -> list[dict[s
     df = _ensure_columns(df, ["timestamp", "event_type", "device_id", "device_name", "device_type", "mountpoint", "usage_percent"])
     df["timestamp"] = _parse_ts(df["timestamp"])
     df = df.dropna(subset=["timestamp"]).sort_values("timestamp", ascending=False)
-    events = df[df["event_type"].isin(["connected", "disconnected"])].head(limit).copy()
+    events = df[df["event_type"].isin(["connected", "disconnected"])].copy()
+    events = _drop_demo_devices(events)
+    events = events.head(limit).copy()
     if events.empty:
         return []
     events["device_group"] = events["device_type"].map(_device_group)
@@ -743,7 +788,7 @@ def dashboard() -> dict[str, Any]:
         anomaly_detected=bool(patterns["spike_detected"] or patterns["gradual_leak_detected"] or patterns["abnormal_pattern"]),
     )
 
-    connected = _latest_connected_devices(device_logs)
+    connected = _recent_connected_devices(device_logs)
     dongle_states = _dongle_buffer_state(device_logs)
     formatted_connected = _format_device_rows(connected, device_logs)
     for row in formatted_connected:

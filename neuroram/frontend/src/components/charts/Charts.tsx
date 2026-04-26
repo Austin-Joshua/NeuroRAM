@@ -32,7 +32,8 @@ const TOOLTIP_STYLE = {
 };
 const CHART_GRID = "var(--line)";
 const CHART_PRIMARY = "var(--green)";
-const CHART_PRIMARY_SOFT = "rgba(59,130,246,.3)";
+const CHART_PRIMARY_SOFT = "rgba(126,163,58,.26)";
+const CHART_ACCENT = "#c4d96f";
 
 function ChartInsight({ insight }: { insight: ChartStory | null | undefined }) {
   if (!insight) return null;
@@ -70,7 +71,13 @@ export function MemoryUsageChart({
       <p className="chart-subtitle">Current RAM and swap behavior with highlighted spikes and high-risk memory zone.</p>
       <ResponsiveContainer width="100%" height={260}>
         <AreaChart data={rows} margin={{ top: 8, right: 12, left: 4, bottom: 24 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+          <defs>
+            <linearGradient id="memGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={CHART_ACCENT} stopOpacity={0.38} />
+              <stop offset="95%" stopColor={CHART_ACCENT} stopOpacity={0.05} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="2 5" stroke={CHART_GRID} />
           <XAxis
             dataKey="timestamp"
             minTickGap={22}
@@ -95,8 +102,8 @@ export function MemoryUsageChart({
               label={i === 0 ? { value: "Predicted Spike", position: "top", fill: "#d4af37", fontSize: 11 } : undefined}
             />
           ))}
-          <Area type="monotone" dataKey="ram_percent" name="RAM %" stroke={CHART_PRIMARY} fill={CHART_PRIMARY_SOFT} isAnimationActive animationDuration={600} />
-          <Area type="monotone" dataKey="swap_percent" name="Swap %" stroke="#d4af37" fill="rgba(212,175,55,.2)" isAnimationActive animationDuration={600} />
+          <Area type="monotone" dataKey="ram_percent" name="RAM %" stroke={CHART_PRIMARY} fill="url(#memGradient)" isAnimationActive animationDuration={700} />
+          <Area type="monotone" dataKey="swap_percent" name="Swap %" stroke="#d4af37" fill={CHART_PRIMARY_SOFT} isAnimationActive animationDuration={700} />
           <Brush dataKey="timestamp" height={20} stroke="#d4af37" />
         </AreaChart>
       </ResponsiveContainer>
@@ -126,7 +133,7 @@ export function PredictionChart({
       <p className="chart-subtitle">Current vs predicted memory usage for the next interval, with risk-zone context.</p>
       <ResponsiveContainer width="100%" height={260}>
         <LineChart data={rows} margin={{ top: 8, right: 12, left: 4, bottom: 24 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+          <CartesianGrid strokeDasharray="2 5" stroke={CHART_GRID} />
           <XAxis
             dataKey="timestamp"
             minTickGap={22}
@@ -142,10 +149,10 @@ export function PredictionChart({
           <Legend />
           <ReferenceArea y1={80} y2={100} fill="rgba(249,115,22,0.08)" label={{ value: "High Risk Zone", position: "insideTopRight", fill: "#f97316", fontSize: 11 }} />
           {showPredicted ? (
-            <Line type="monotone" dataKey="predicted_ram_percent" name="Predicted %" stroke="#d4af37" strokeDasharray="6 4" dot={false} strokeWidth={2} isAnimationActive animationDuration={600} />
+            <Line type="monotone" dataKey="predicted_ram_percent" name="Predicted %" stroke="#d4af37" strokeDasharray="6 4" dot={false} activeDot={{ r: 4 }} strokeWidth={2.3} isAnimationActive animationDuration={700} />
           ) : null}
           {showActual ? (
-            <Line type="monotone" dataKey="actual_ram_percent" name="Actual %" stroke={CHART_PRIMARY} dot={false} strokeWidth={2} isAnimationActive animationDuration={600} />
+            <Line type="monotone" dataKey="actual_ram_percent" name="Actual %" stroke={CHART_PRIMARY} dot={false} activeDot={{ r: 4 }} strokeWidth={2.3} isAnimationActive animationDuration={700} />
           ) : null}
           <Brush dataKey="timestamp" height={20} stroke="#d4af37" />
         </LineChart>
@@ -172,7 +179,7 @@ export function StabilityChart({
       <p className="chart-subtitle">Composite score from RAM, swap, and risk posture (0–100).</p>
       <ResponsiveContainer width="100%" height={260}>
         <LineChart data={rows} margin={{ top: 8, right: 12, left: 4, bottom: 24 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+          <CartesianGrid strokeDasharray="2 5" stroke={CHART_GRID} />
           <XAxis
             dataKey="timestamp"
             minTickGap={22}
@@ -186,7 +193,7 @@ export function StabilityChart({
           />
           <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v, n) => [fmtScore(v), n]} labelStyle={{ fontWeight: 600 }} />
           <Legend />
-          <Line type="monotone" dataKey="stability_index" name="Stability" stroke={CHART_PRIMARY} dot={false} strokeWidth={2} isAnimationActive animationDuration={600} />
+          <Line type="monotone" dataKey="stability_index" name="Stability" stroke={CHART_PRIMARY} dot={false} activeDot={{ r: 4 }} strokeWidth={2.3} isAnimationActive animationDuration={700} />
           <Brush dataKey="timestamp" height={20} stroke="#d4af37" />
         </LineChart>
       </ResponsiveContainer>
@@ -212,7 +219,7 @@ export function DeviceActivityChart({
       <p className="chart-subtitle">External device behavior helps explain memory changes and upcoming pressure.</p>
       <ResponsiveContainer width="100%" height={260}>
         <BarChart data={rows} margin={{ top: 8, right: 12, left: 4, bottom: 24 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+          <CartesianGrid strokeDasharray="2 5" stroke={CHART_GRID} />
           <XAxis
             dataKey="timestamp"
             minTickGap={22}
@@ -222,9 +229,9 @@ export function DeviceActivityChart({
           <YAxis tick={{ fontSize: 11 }} label={{ value: "Count", angle: -90, position: "insideLeft", fill: "var(--text-muted)", fontSize: 11 }} />
           <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v, n) => [fmtCount(v), n]} labelStyle={{ fontWeight: 600 }} />
           <Legend />
-          <Bar dataKey="active_devices" name="Active devices" fill={CHART_PRIMARY} isAnimationActive animationDuration={600} />
-          <Bar dataKey="connected_events" name="Connected" fill="#d4af37" isAnimationActive animationDuration={600} />
-          <Bar dataKey="disconnected_events" name="Disconnected" fill="#f97316" isAnimationActive animationDuration={600} />
+          <Bar dataKey="active_devices" name="Active devices" fill={CHART_PRIMARY} radius={[5, 5, 0, 0]} isAnimationActive animationDuration={700} />
+          <Bar dataKey="connected_events" name="Connected" fill="#d4af37" radius={[5, 5, 0, 0]} isAnimationActive animationDuration={700} />
+          <Bar dataKey="disconnected_events" name="Disconnected" fill="#f97316" radius={[5, 5, 0, 0]} isAnimationActive animationDuration={700} />
           <Brush dataKey="timestamp" height={20} stroke="#d4af37" />
         </BarChart>
       </ResponsiveContainer>

@@ -30,8 +30,7 @@ const getInitialMobile = (): boolean => {
 };
 
 function AppShell() {
-  const [refreshMs, setRefreshMs] = useState(2000);
-  const { payload, loading, error } = useDashboard(refreshMs);
+  const { payload, loading, error } = useDashboard();
   const location = useLocation();
   const navigate = useNavigate();
   const [theme, setTheme] = useState<"dark" | "light">(getInitialTheme);
@@ -80,67 +79,65 @@ function AppShell() {
           payload={payload}
           theme={theme}
           activePage={activePage}
-          refreshMs={refreshMs}
-          onRefreshMsChange={setRefreshMs}
           onHomeClick={() => navigate("/dashboard")}
           onMenuToggle={() => {
             if (isMobile) setCollapsed((v) => !v);
           }}
           onThemeToggle={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
         />
-        {loading && !payload ? (
-          <section className="panel">
-            <h2 className="panel-loading-title">Loading</h2>
-            <p className="panel-copy">Fetching live memory and device intelligence from the API…</p>
-          </section>
-        ) : null}
-        {error ? (
-          <section className="panel error">
-            <h2 className="panel-loading-title">Connection issue</h2>
-            <p className="panel-copy">Failed to fetch data: {error}</p>
-          </section>
-        ) : null}
-        {payload && !payload.ready ? (
-          <section className="panel">
-            <h2 className="panel-loading-title">Warming up</h2>
-            <p className="panel-copy">{payload.message ?? "No data available yet. The pipeline is collecting the first samples."}</p>
-          </section>
-        ) : null}
-        {payload?.ready && (
-          <Routes>
-            <Route
-              path="/dashboard"
-              element={
-                <DashboardPage
-                  payload={payload}
-                  showPredicted={showPredicted}
-                  showActual={showActual}
-                  setShowPredicted={setShowPredicted}
-                  setShowActual={setShowActual}
-                  refreshMs={refreshMs}
-                />
-              }
-            />
-            <Route path="/memory" element={<MemoryPage payload={payload} />} />
-            <Route path="/devices" element={<DevicesPage payload={payload} />} />
-            <Route
-              path="/trends"
-              element={
-                <TrendsPage
-                  payload={payload}
-                  showPredicted={showPredicted}
-                  showActual={showActual}
-                  setShowPredicted={setShowPredicted}
-                  setShowActual={setShowActual}
-                  refreshMs={refreshMs}
-                />
-              }
-            />
-            <Route path="/analysis" element={<AnalysisPage payload={payload} />} />
-            <Route path="/history" element={<HistoryPage payload={payload} />} />
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
-        )}
+        <div className="content-wrap">
+          {loading && !payload ? (
+            <section className="panel">
+              <h2 className="panel-loading-title">Loading</h2>
+              <p className="panel-copy">Fetching live memory and device intelligence from the API…</p>
+            </section>
+          ) : null}
+          {error ? (
+            <section className="panel error">
+              <h2 className="panel-loading-title">Connection issue</h2>
+              <p className="panel-copy">Failed to fetch data: {error}</p>
+            </section>
+          ) : null}
+          {payload && !payload.ready ? (
+            <section className="panel">
+              <h2 className="panel-loading-title">Warming up</h2>
+              <p className="panel-copy">{payload.message ?? "No data available yet. The pipeline is collecting the first samples."}</p>
+            </section>
+          ) : null}
+          {payload?.ready && (
+            <Routes>
+              <Route
+                path="/dashboard"
+                element={
+                  <DashboardPage
+                    payload={payload}
+                    showPredicted={showPredicted}
+                    showActual={showActual}
+                    setShowPredicted={setShowPredicted}
+                    setShowActual={setShowActual}
+                  />
+                }
+              />
+              <Route path="/memory" element={<MemoryPage payload={payload} />} />
+              <Route path="/devices" element={<DevicesPage payload={payload} />} />
+              <Route
+                path="/trends"
+                element={
+                  <TrendsPage
+                    payload={payload}
+                    showPredicted={showPredicted}
+                    showActual={showActual}
+                    setShowPredicted={setShowPredicted}
+                    setShowActual={setShowActual}
+                  />
+                }
+              />
+              <Route path="/analysis" element={<AnalysisPage payload={payload} />} />
+              <Route path="/history" element={<HistoryPage payload={payload} />} />
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            </Routes>
+          )}
+        </div>
       </main>
     </div>
   );

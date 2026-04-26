@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { type CSSProperties, useEffect, useRef, useState } from "react";
 import type { DashboardPayload } from "../services/api";
 import { DeviceActivityChart, MemoryUsageChart, PredictionChart, StabilityChart } from "../components/charts/Charts";
 import { getGraphInsight, getSpikeTimestamps } from "../utils/chartInsights";
@@ -7,20 +7,11 @@ import { useSearchParams } from "react-router-dom";
 type Props = { payload: DashboardPayload };
 
 function buildSignalNarrative(mp: DashboardPayload["analysis"]["memory_patterns"]): string {
-  const parts: string[] = [];
-  if (mp.spike_detected) {
-    parts.push("Short-lived RAM spikes appeared in the recent window—often tied to bursty workloads, startup phases, or removable storage activity.");
-  }
-  if (mp.gradual_leak_detected) {
-    parts.push("A gradual upward drift suggests possible leak-like growth; validate with a longer window and top process contributors.");
-  }
-  if (mp.abnormal_pattern) {
-    parts.push("Variability is higher than a calm baseline—correlate with apps, devices, and swap pressure before load increases.");
-  }
-  if (parts.length === 0) {
-    return "No strong anomaly signature in the current pattern slice—treat this as a steady snapshot unless risk or swap pressure escalates.";
-  }
-  return parts.join(" ");
+  const flags: string[] = [];
+  if (mp.spike_detected) flags.push("Spike detected");
+  if (mp.gradual_leak_detected) flags.push("Drift detected");
+  if (mp.abnormal_pattern) flags.push("Volatility detected");
+  return flags.length ? flags.join(" • ") : "No anomaly signals detected";
 }
 
 export function AnalysisPage({ payload }: Props) {
@@ -28,7 +19,23 @@ export function AnalysisPage({ payload }: Props) {
   const focus = (searchParams.get("focus") ?? "").toLowerCase();
   const focusedReportRef = useRef<HTMLElement | null>(null);
   const [flashReport, setFlashReport] = useState(false);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    overview: true,
+    quality: true,
+    signals: true,
+  });
   const riskClass = payload.metrics.risk_level.toLowerCase();
+  const riskScore = Number(
+    (
+      payload.metrics.risk_level === "EMERGENCY"
+        ? 95
+        : payload.metrics.risk_level === "CRITICAL"
+        ? 80
+        : payload.metrics.risk_level === "WARNING"
+        ? 58
+        : 28
+    ).toFixed(1),
+  );
   const predictionEfficiency =
     payload.analysis.memory_patterns.predicted_vs_actual_mae == null
       ? null
@@ -108,74 +115,127 @@ export function AnalysisPage({ payload }: Props) {
       });
     }
   }, [focusedKpiReport]);
+  const toggleSection = (id: string) => {
+    setOpenSections((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
 
   return (
     <div className="page-grid">
       <section className="panel">
-        <h2>Predictive Intelligent Analysis</h2>
-        <p className="panel-copy analysis-lead">
-          Structured reading of memory intelligence: what the system sees, why it matters, and how it could affect responsiveness. Numbers below map to the same pipeline
-          (OS → DB → ML → DAA → API) you run in production.
-        </p>
+        <h2>Predictive Analysis</h2>
         <div className="analysis-top">
           <span className={`risk-badge risk-badge--large ${riskClass}`}>Risk · {payload.metrics.risk_level}</span>
           <p className="analysis-narrative">{narrative}</p>
-          {narrative.trim() !== payload.analysis.summary.trim() ? <p className="panel-copy">{payload.analysis.summary}</p> : null}
         </div>
-        <div className="analysis-brief">
-          <article>
-            <h3>What is happening</h3>
-            <p>{payload.analysis.what_why_how?.what ?? (payload.analysis.memory_patterns.spike_detected ? "Short-term memory spikes are present." : "No severe short-term spikes detected.")}</p>
+        <div className="risk-meter-grid">
+          <article className="risk-meter-card">
+            <h3>Risk meter</h3>
+            <div
+              className="risk-meter-ring"
+              style={
+                {
+                  "--risk-value": `${riskScore}%`,
+                } as CSSProperties
+              }
+            >
+              <div className="risk-meter-inner">
+                <strong>{riskScore.toFixed(0)}%</strong>
+                <span>{payload.metrics.risk_level}</span>
+              </div>
+            </div>
           </article>
-          <article>
-            <h3>Why it is happening</h3>
-            <p>{payload.analysis.what_why_how?.why ?? payload.analysis.reasons[0] ?? "Memory behavior is currently stable."}</p>
-          </article>
-          <article>
-            <h3>Impact on the system</h3>
-            <p>
-              {payload.analysis.what_why_how?.impact ??
-                payload.analysis.what_why_how?.how_serious ??
-                `Risk level is ${payload.metrics.risk_level} with stability score ${payload.metrics.stability_score.toFixed(1)}.`}
-            </p>
-          </article>
-          <article>
-            <h3>Recommended action</h3>
-            <p>
-              {topRecommendedAction
-                ? `${topRecommendedAction.action} (${topRecommendedAction.priority})`
-                : dosList[0] ?? "No immediate action required. Keep telemetry active and monitor trend direction."}
-            </p>
+          <article className="risk-meter-card">
+            <h3>Stability meter</h3>
+            <div
+              className="risk-meter-ring risk-meter-ring--stable"
+              style={
+                {
+                  "--risk-value": `${Math.max(0, Math.min(100, payload.metrics.stability_score)).toFixed(1)}%`,
+                } as CSSProperties
+              }
+            >
+              <div className="risk-meter-inner">
+                <strong>{payload.metrics.stability_score.toFixed(0)}</strong>
+                <span>/100</span>
+              </div>
+            </div>
           </article>
         </div>
-        <div className="analysis-grid">
-          <article>
-            <h3>Algorithms in use</h3>
-            <p>{payload.analysis.algorithm ?? "ML (Random Forest) + DAA (Risk Analyzer and Stability Scoring)"}</p>
+        <div className="analysis-collapsible-list">
+          <article className="analysis-collapsible">
+            <button className="analysis-collapsible-toggle" onClick={() => toggleSection("overview")} aria-expanded={openSections.overview}>
+              <h3>Overview</h3>
+              <span>{openSections.overview ? "−" : "+"}</span>
+            </button>
+            {openSections.overview ? (
+              <div className="analysis-collapsible-body analysis-brief">
+                <article>
+                  <h3>What is happening</h3>
+                  <p>{payload.analysis.what_why_how?.what ?? (payload.analysis.memory_patterns.spike_detected ? "Short-term memory spikes are present." : "No severe short-term spikes detected.")}</p>
+                </article>
+                <article>
+                  <h3>Why it is happening</h3>
+                  <p>{payload.analysis.what_why_how?.why ?? payload.analysis.reasons[0] ?? "Memory behavior is currently stable."}</p>
+                </article>
+                <article>
+                  <h3>Impact on the system</h3>
+                  <p>
+                    {payload.analysis.what_why_how?.impact ??
+                      payload.analysis.what_why_how?.how_serious ??
+                      `Risk level is ${payload.metrics.risk_level} with stability score ${payload.metrics.stability_score.toFixed(1)}.`}
+                  </p>
+                </article>
+                <article>
+                  <h3>Recommended action</h3>
+                  <p>
+                    {topRecommendedAction
+                      ? `${topRecommendedAction.action} (${topRecommendedAction.priority})`
+                      : dosList[0] ?? "No immediate action required. Keep telemetry active and monitor trend direction."}
+                  </p>
+                </article>
+              </div>
+            ) : null}
           </article>
-          <article>
-            <h3>Prediction efficiency</h3>
-            <p>
-              Mean absolute error (MAE) between forecast and observed RAM:{" "}
-              <strong>{payload.analysis.memory_patterns.predicted_vs_actual_mae ?? "N/A"}</strong> percentage points.
-            </p>
-            <p>
-              Signed bias (over vs under forecast):{" "}
-              <strong>{payload.analysis.memory_patterns.predicted_vs_actual_bias ?? "N/A"}</strong>.
-            </p>
-            <p>
-              Composite efficiency score (higher is tighter tracking):{" "}
-              <strong>{predictionEfficiency == null ? "N/A" : `${predictionEfficiency}%`}</strong>.
-            </p>
+
+          <article className="analysis-collapsible">
+            <button className="analysis-collapsible-toggle" onClick={() => toggleSection("quality")} aria-expanded={openSections.quality}>
+              <h3>Forecast quality</h3>
+              <span>{openSections.quality ? "−" : "+"}</span>
+            </button>
+            {openSections.quality ? (
+              <div className="analysis-collapsible-body analysis-grid">
+                <article>
+                  <h3>Model accuracy</h3>
+                  <p>
+                    MAE: <strong>{payload.analysis.memory_patterns.predicted_vs_actual_mae ?? "N/A"}</strong> · Bias:{" "}
+                    <strong>{payload.analysis.memory_patterns.predicted_vs_actual_bias ?? "N/A"}</strong>
+                  </p>
+                  <p>
+                    Efficiency: <strong>{predictionEfficiency == null ? "N/A" : `${predictionEfficiency}%`}</strong>
+                  </p>
+                </article>
+              </div>
+            ) : null}
           </article>
-          <article>
-            <h3>Pattern signals</h3>
-            <p className="panel-copy">{buildSignalNarrative(payload.analysis.memory_patterns)}</p>
-            <p className="pattern-flags" aria-label="Pattern flags">
-              <span className={payload.analysis.memory_patterns.spike_detected ? "pattern-flag pattern-flag--on" : "pattern-flag"}>Spike</span>
-              <span className={payload.analysis.memory_patterns.gradual_leak_detected ? "pattern-flag pattern-flag--on" : "pattern-flag"}>Drift</span>
-              <span className={payload.analysis.memory_patterns.abnormal_pattern ? "pattern-flag pattern-flag--on" : "pattern-flag"}>Volatile</span>
-            </p>
+
+          <article className="analysis-collapsible">
+            <button className="analysis-collapsible-toggle" onClick={() => toggleSection("signals")} aria-expanded={openSections.signals}>
+              <h3>Pattern signals</h3>
+              <span>{openSections.signals ? "−" : "+"}</span>
+            </button>
+            {openSections.signals ? (
+              <div className="analysis-collapsible-body analysis-grid">
+                <article>
+                  <h3>Signal summary</h3>
+                  <p className="panel-copy">{buildSignalNarrative(payload.analysis.memory_patterns)}</p>
+                  <p className="pattern-flags" aria-label="Pattern flags">
+                    <span className={payload.analysis.memory_patterns.spike_detected ? "pattern-flag pattern-flag--on" : "pattern-flag"}>Spike</span>
+                    <span className={payload.analysis.memory_patterns.gradual_leak_detected ? "pattern-flag pattern-flag--on" : "pattern-flag"}>Drift</span>
+                    <span className={payload.analysis.memory_patterns.abnormal_pattern ? "pattern-flag pattern-flag--on" : "pattern-flag"}>Volatile</span>
+                  </p>
+                </article>
+              </div>
+            ) : null}
           </article>
         </div>
       </section>

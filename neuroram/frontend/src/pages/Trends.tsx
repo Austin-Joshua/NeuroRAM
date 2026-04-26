@@ -6,14 +6,13 @@ import { getGraphInsight, getSpikeTimestamps } from "../utils/chartInsights";
 
 type Props = {
   payload: DashboardPayload;
-  refreshMs: number;
   showPredicted: boolean;
   showActual: boolean;
   setShowPredicted: (v: boolean) => void;
   setShowActual: (v: boolean) => void;
 };
 
-export function TrendsPage({ payload, refreshMs, showPredicted, showActual, setShowPredicted, setShowActual }: Props) {
+export function TrendsPage({ payload, showPredicted, showActual, setShowPredicted, setShowActual }: Props) {
   const [searchParams] = useSearchParams();
   const detailedReportRef = useRef<HTMLElement | null>(null);
   const [flashReport, setFlashReport] = useState(false);
@@ -66,9 +65,12 @@ export function TrendsPage({ payload, refreshMs, showPredicted, showActual, setS
         <h2>Predictive Memory Trend Intelligence</h2>
         <p className="panel-copy">Correlate current memory behavior, predicted direction, stability risk, and external device impact over time.</p>
       </section>
+      <section className="panel live-notice">
+        <h2>Live Signal</h2>
+        <p className="panel-copy">Streaming trend notifications highlight current signal changes. Click any chart to spotlight its contextual recommendation.</p>
+      </section>
       <section className="panel">
         <h2>Predictive Trend Controls</h2>
-        <p className="panel-copy">Live refresh speed: {(refreshMs / 1000).toFixed(0)}s</p>
         <div className="switch-row">
           <label>
             <input type="checkbox" checked={showPredicted} onChange={(e) => setShowPredicted(e.target.checked)} /> Prediction line (dashed)

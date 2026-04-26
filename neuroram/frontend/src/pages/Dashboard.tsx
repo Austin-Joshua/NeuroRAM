@@ -7,14 +7,13 @@ import { getGraphInsight, getSpikeTimestamps } from "../utils/chartInsights";
 
 type Props = {
   payload: DashboardPayload;
-  refreshMs: number;
   showPredicted: boolean;
   showActual: boolean;
   setShowPredicted: (v: boolean) => void;
   setShowActual: (v: boolean) => void;
 };
 
-export function DashboardPage({ payload, refreshMs, showPredicted, showActual, setShowPredicted, setShowActual }: Props) {
+export function DashboardPage({ payload, showPredicted, showActual, setShowPredicted, setShowActual }: Props) {
   const navigate = useNavigate();
   const [windowSize, setWindowSize] = useState(80);
   const memoryRows = payload.trends.memory.slice(-windowSize).map((r) => ({ ...r, ram_percent: Number(r.ram_percent) || 0, swap_percent: Number(r.swap_percent) || 0 }));
@@ -96,17 +95,16 @@ export function DashboardPage({ payload, refreshMs, showPredicted, showActual, s
   return (
     <div className="page-grid">
       <section className="panel">
-        <h2>Chart Controls</h2>
-        <p className="panel-copy">Live refresh speed: {(refreshMs / 1000).toFixed(0)}s</p>
+        <h2>Dashboard Controls</h2>
         <div className="switch-row">
           <label>
-            <input type="checkbox" checked={showPredicted} onChange={(e) => setShowPredicted(e.target.checked)} /> Prediction line (dashed)
+            <input type="checkbox" checked={showPredicted} onChange={(e) => setShowPredicted(e.target.checked)} /> Prediction
           </label>
           <label>
-            <input type="checkbox" checked={showActual} onChange={(e) => setShowActual(e.target.checked)} /> Current usage line
+            <input type="checkbox" checked={showActual} onChange={(e) => setShowActual(e.target.checked)} /> Actual
           </label>
           <label>
-            Live window:
+            Window:
             <select value={windowSize} onChange={(e) => setWindowSize(Number(e.target.value))}>
               <option value={60}>60</option>
               <option value={120}>120</option>

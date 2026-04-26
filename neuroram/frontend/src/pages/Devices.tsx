@@ -67,6 +67,10 @@ export function DevicesPage({ payload }: Props) {
           <strong>Memory impact insight:</strong> {deviceImpactNote}
         </p>
       </section>
+      <section className="panel live-notice">
+        <h2>Live Device Pulse</h2>
+        <p className="panel-copy">Device notifications and churn analytics refresh continuously so only current external activity appears in the story.</p>
+      </section>
       {summary ? (
         <div className="device-summary-bar">
           <strong>Storage snapshot:</strong> <span>{summary}</span>
@@ -96,6 +100,12 @@ export function DevicesPage({ payload }: Props) {
                 <dd>{device.file_count == null ? "—" : device.file_count}</dd>
                 <dt>Folders (sample scan)</dt>
                 <dd>{device.folder_count == null ? "—" : device.folder_count}</dd>
+                {device.device_group === "input_dongle" ? (
+                  <>
+                    <dt>Mouse dongle buffer</dt>
+                    <dd>{device.buffer_state || "idle"}</dd>
+                  </>
+                ) : null}
               </dl>
             </article>
           ))}
